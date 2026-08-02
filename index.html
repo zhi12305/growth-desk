@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#9cc46a">
-<title>成长工作台 · Growth Desk</title>
+<title>小凪的工作台 · Growth Desk</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -1774,13 +1774,13 @@ function boot(){
   }
   setInterval(()=>{const d=new Date();const hc=document.getElementById("homeClock");if(hc)hc.textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());const hd=document.getElementById("homeDate");if(hd)hd.textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日 · 周"+"日一二三四五六"[d.getDay()];},1000);
 }
-boot();
-/* ============== PWA：注册 Service Worker（让应用可"安装"到手机桌面） ============== */
+/* ============== PWA：尽早注册 Service Worker（让应用可"安装"到手机桌面，无Chrome角标） ============== */
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js').catch(err=>console.warn('SW注册失败:',err));
-  });
+  navigator.serviceWorker.register('./sw.js').then(reg=>{
+    console.log('SW已注册, scope:', reg.scope);
+  }).catch(err=>console.warn('SW注册失败:',err));
 }
+boot();
 </script>
 </body>
 </html>
