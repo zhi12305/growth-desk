@@ -246,16 +246,21 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 
 .mood:hover{border-color:var(--accent);transform:scale(1.06);}
 .mood.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-soft);}
 
-/* ---------- Modal —— 永远白底深字，不受任何主题影响 ---------- */
-.modal{position:fixed;inset:0;background:rgba(15,22,15,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;}
+/* ---------- Modal —— 半透明毛玻璃效果，可缩放 ---------- */
+.modal{position:fixed;inset:0;background:rgba(15,22,15,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;}
 .modal.show{display:flex;}
-.modal-box{background:#ffffff!important;
+.modal-box{background:rgba(255,255,255,.94)!important;
+  backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);
   border-radius:22px;padding:22px;width:min(580px,94vw);max-height:88vh;overflow-y:auto;
-  box-shadow:0 24px 70px rgba(0,0,0,.32);border:1px solid #d8e0d8;
-  color:#2b3a2b!important;}
+  box-shadow:0 24px 70px rgba(0,0,0,.22);border:1px solid rgba(200,212,200,.6);
+  color:#2b3a2b!important;transition:width .25s ease,height .25s ease,opacity .25s ease;
+  position:relative;}
+/* 最小化状态 */
+.modal-box.minimized{width:min(320px,85vw)!important;height:auto!important;max-height:none!important;overflow:hidden;opacity:.95;}
+.modal-box.minimized .modal-body-collapsible{display:none;}
 /* 强制：任何模式下modal-box永远白底深字 */
 body.dark .modal-box,
-body[class] .modal-box{background:#ffffff!important;color:#2b3a2b!important;border-color:#d8e0d8!important;}
+body[class] .modal-box{background:rgba(245,248,244,.94)!important;color:#2b3a2b!important;border-color:rgba(200,212,200,.6)!important;}
 /* 输入框/选择框/文本框 —— 固定浅底深字 */
 .modal-box input,.modal-box textarea,.modal-box select{
   color:#2b3a2b!important;background:#f8f9f7!important;border-color:#d0dcd2!important;}
@@ -268,8 +273,21 @@ body.dark .modal-box .muted,body[class] .modal-box .muted{color:#6b7c6b!importan
 .modal-box .hint{color:#7a8c7a!important;line-height:1.6;}
 body.dark .modal-box .hint,body[class] .modal-box .hint{color:#7a8c7a!important;}
 /* modal内标题 */
-.modal h3{margin:0 0 14px;font-size:18px;color:#1a2e1a!important;}
+.modal h3{margin:0 0 14px;font-size:18px;color:#1a2e1a!important;display:flex;align-items:center;gap:8px;flex:1;}
 body.dark .modal h3,body[class] .modal h3{color:#1a2e1a!important;}
+/* modal窗口控制按钮 */
+.modal-ctrls{display:flex;gap:4px;flex-shrink:0;}
+.modal-ctrl{width:26px;height:26px;border-radius:6px;border:1px solid #ccc;background:#f5f5f5!important;color:#555!important;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:.15s;}
+.modal-ctrl:hover{border-color:#999;background:#e8e8e8!important;color:#222!important;}
+/* 自定义方案保存区 */
+.save-scheme-row{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.save-scheme-row input{flex:1;min-width:120px;font-size:13px;}
+.custom-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.custom-preset-chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:4px 10px;border-radius:99px;border:1px solid #c8d4c8;background:#f0f4ee;color:#3a4a3a;cursor:pointer;transition:.15s;max-width:180px;}
+.custom-preset-chip:hover{border-color:#889888;background:#e8f0e8;}
+.custom-preset-chip .cp-name{overflow:hidden;text-ellipsis;white-space:nowrap;}
+.custom-preset-chip .cp-del{border:none;background:transparent;color:#c0392b;cursor:pointer;font-size:12px;padding:0 2px;line-height:1;opacity:.5;transition:.15s;}
+.custom-preset-chip .cp-del:hover{opacity:1;}
 /* modal内按钮基础色 */
 .modal-box .chip{background:#f0f4ee;color:#3a4a3a;border-color:#c8d4c8!important;}
 .modal-box .chip.on{background:#3a5a3a;color:#fff;border-color:#3a5a3a!important;}
@@ -325,39 +343,63 @@ input[type="range"]::-webkit-slider-runnable-track{height:6px;border-radius:3px;
 .cat-manage .nm{flex:1;font-size:14px;}
 .hint{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5;}
 
-/* ---------- Color Wheel (色环) —— 全部固定颜色，不随主题变化 ---------- */
-.color-wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border:1px solid #d0dcd2;border-radius:16px;background:#fafcf8!important;}
-/* 色环容器永远固定，不受dark模式影响 */
+/* ---------- Color Wheel (色环) —— 按参考图：外圈空心彩虹环 + 内方SV四角顶圆环 ---------- */
+.color-wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border:1px solid #d0dcd2;border-radius:16px;background:rgba(250,252,248,.95)!important;position:relative;width:100%;max-width:280px;}
 body.dark .color-wheel-wrap,
-body[class] .color-wheel-wrap{background:#fafcf8!important;border-color:#d0dcd2!important;}
-.cw-label{font-size:12px;font-weight:600;color:#2b3a2b!important;}
-.cw-preview{width:36px;height:24px;border-radius:8px;border:2px solid #c0ccc0;box-shadow:inset 0 1px 3px rgba(0,0,0,.08);}
-.color-wheel{position:relative;width:160px;height:160px;cursor:pointer;border-radius:50%;user-select:none;-webkit-user-select:none;}
-/* 外圈彩虹色相环 —— 固定不变 */
+body[class] .color-wheel-wrap{background:rgba(250,252,248,.95)!important;border-color:#d0dcd2!important;}
+.cw-label{font-size:13px;font-weight:600;color:#2b3a2b!important;letter-spacing:.3px;}
+.cw-preview{width:44px;height:28px;border-radius:8px;border:2px solid #c0ccc0;box-shadow:inset 0 1px 3px rgba(0,0,0,.08);}
+/*
+ * 色环主体 220×220：
+ *   外圈：空心彩虹圆环（mask挖空中心）—— H色相选择，手柄只在圆弧上移动
+ *   内方：正方形SV选择器，四角顶住圆环内侧（对角线=内径），与圆环不交叉
+ *
+ * 几何（容器半宽=110px）：
+ *   环内半径 ≈ 56% → 67px   环外半径 ≈ 92% → 111px   环厚 ≈ 44px（已加粗）
+ *   方块边长 95px → 对角线 134.3px ≈ 2×67px（四角顶内圈）✓
+ *   环中心线半径 ≈ 74% → 89px（H手柄定位）
+ */
+.color-wheel{position:relative;width:240px;height:240px;cursor:pointer;border-radius:50%;user-select:none;-webkit-user-select:none;touch-action:none;}
+/* 外圈彩虹色相环 —— 真正的空心圆环（mask挖空中心+外缘） */
 .cw-ring{position:absolute;inset:0;border-radius:50%;
   background:conic-gradient(hsl(0,100%,50%),hsl(60,100%,50%),hsl(120,100%,50%),hsl(180,100%,50%),hsl(240,100%,50%),hsl(300,100%,50%),hsl(360,100%,50%));
-  box-shadow:0 0 0 5px transparent,inset 0 0 0 2px rgba(255,255,255,.5);}
-/* 内方SV方块 —— 固定白底渐变，不随主题变 */
-.cw-square{position:absolute;top:18px;left:18px;width:124px;height:124px;border-radius:10px;
+  /* mask：0~61%透明(中心空洞) | 62%~87%黑色(环身显示) | 88%~100%透明(外缘裁切) */
+  -webkit-mask:radial-gradient(circle at center, transparent 55%, black 56%, black 92%, transparent 93%);
+  mask:radial-gradient(circle at center, transparent 55%, black 56%, black 92%, transparent 93%);
+}
+/* 内方SV选择器 —— 96×96正方形居中，四角顶住圆环内侧 */
+.cw-square{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:95px;height:95px;border-radius:4px;
   background:linear-gradient(to bottom,#fff,transparent),linear-gradient(to right,#fff,transparent);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);overflow:hidden;}
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.15),0 2px 8px rgba(0,0,0,.1);overflow:hidden;cursor:crosshair;}
 .cw-sq-fill{position:absolute;inset:0;
   background:linear-gradient(to bottom,transparent,hsl(var(--cw-h,0),100%,0%)),
          linear-gradient(to right,transparent,hsl(var(--cw-h,0),100%,50%));}
-/* 手柄 —— 固定白色边框+深影 */
-.cw-hue-handle{position:absolute;width:18px;height:18px;border-radius:50%;border:2.5px solid #fff;
-  box-shadow:0 2px 6px rgba(0,0,0,.35),inset 0 0 0 1px rgba(0,0,0,.15);
-  transform:translate(-50%,-50%);z-index:3;pointer-events:none;}
-.cw-sv-handle{position:absolute;width:14px;height:14px;border-radius:50%;border:2px solid #fff;
-  box-shadow:0 1px 4px rgba(0,0,0,.3);transform:translate(-50%,-50%);z-index:3;pointer-events:none;}
-.cw-sliders{width:160px;display:flex;flex-direction:column;gap:4px;margin-top:4px;}
-.cw-slider-row{display:grid;grid-template-columns:24px 28px 1fr 28px 38px;gap:4px;align-items:center;font-size:11.5px;color:#444!important;}
-.cw-btn{width:24px;height:24px;border-radius:6px;border:1px solid #bbb;background:#f0f0f0!important;color:#333!important;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:.15s;flex-shrink:0;}
-.cw-btn:hover{border-color:#888;background:#e0e0e0!important;color:#111!important;}
-.cw-slider-row input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
-  background:#ccc;outline:none;}
+/* 手柄 */
+.cw-hue-handle{position:absolute;width:20px;height:20px;border-radius:50%;border:3px solid #fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.4),inset 0 0 0 1px rgba(0,0,0,.2);
+  transform:translate(-50%,-50%);z-index:5;pointer-events:none;}
+.cw-sv-handle{position:absolute;width:16px;height:16px;border-radius:50%;border:2.5px solid #fff;
+  box-shadow:0 1px 5px rgba(0,0,0,.35);transform:translate(-50%,-50%);z-index:5;pointer-events:none;}
+/* H/S/V 滑块区 */
+.cw-sliders{width:240px;display:flex;flex-direction:column;gap:4px;margin-top:6px;}
+.cw-slider-row{display:grid;grid-template-columns:28px 30px 1fr 30px 44px;gap:5px;align-items:center;font-size:12.5px;color:#444!important;}
+.cw-btn{width:28px;height:28px;border-radius:7px;border:1px solid #bbb;background:#f5f5f5!important;color:#333!important;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:.15s;flex-shrink:0;}
+.cw-btn:hover{border-color:#888;background:#e8e8e8!important;color:#111!important;}
+.cw-btn:active{background:#ddd!important;transform:scale(.95);}
+.cw-slider-row input[type="range"]{-webkit-appearance:none;appearance:none;height:7px;border-radius:3.5px;
+  background:#ccc;outline:none;cursor:pointer;}
 .cw-slider-row input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
-  width:14px;height:14px;border-radius:50%;background:#666;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+  width:18px;height:18px;border-radius:50%;background:#555;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);
+  cursor:pointer;margin:-5.5px 0!important;}
+.cw-slider-row input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#555;border:2.5px solid #fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer;}
+/* HSV数字输入框 */
+.cw-num-input{width:44px;height:26px;border:1px solid #bbb;border-radius:6px;
+  text-align:center;font-size:12.5px;color:#333!important;background:#fff!important;
+  outline:none;padding:0 3px;font-family:inherit;-moz-appearance:textfield;transition:border-color .15s;}
+.cw-num-input::-webkit-inner-spin-button,.cw-num-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.cw-num-input:focus{border-color:#666;box-shadow:0 0 0 2px rgba(0,0,0,.08);}
 
 /* ---------- Background Textures ---------- */
 /* 波点 —— 深绿灰点，透明度由 --dot-alpha 控制（0=完全不透 1=全透） */
@@ -394,12 +436,18 @@ body.gradient{background:linear-gradient(135deg,
   /* modal弹窗全宽 */
   .modal-box{width:96vw!important;padding:16px;border-radius:18px;max-height:92vh;}
   .modal-box h3{font-size:16px;}
-  /* 色环在手机上竖向排列+缩小 */
-  #colorWheels{flex-direction:column;align-items:center;gap:20px;}
-  .color-wheel-wrap{width:100%;max-width:280px;}
-  .color-wheel{width:140px;height:140px;}
-  .cw-square{top:15px;left:15px;width:110px;height:110px;}
-  .cw-sliders{width:100%;max-width:220px;}
+  /* 色环：竖排，每行一个，放大到可操作 */
+  #colorWheels{flex-direction:column;align-items:center;gap:18px;width:100%;}
+  .color-wheel-wrap{max-width:100%;padding:12px 10px;}
+  .color-wheel{width:210px;height:210px;}
+  /* 方块按比例：95*(210/240)=83px，四角顶内圈 */
+  .cw-square{width:83px;height:83px;border-radius:4px;}
+  .cw-sliders{width:210px;}
+  .cw-slider-row{grid-template-columns:26px 28px 1fr 28px 40px;gap:4px;font-size:11.5px;}
+  .cw-btn{width:26px;height:26px;font-size:15px;}
+  .cw-preview{width:40px;height:26px;}
+  .cw-label{font-size:12px;}
+  .cw-num-input{width:40px;height:24px;font-size:11.5px;}
   /* 预设色块一行4个 */
   .swatches{grid-template-columns:repeat(4,1fr)!important;}
   .swatch{width:38px;height:38px;}
@@ -418,9 +466,15 @@ body.gradient{background:linear-gradient(135deg,
   .nav-spacer{display:none;}           /* 手机空间小，不撑开底部留白，让分类紧凑可滑 */
   .main{flex:1;overflow-y:auto;min-width:0;}
   .content{padding:10px 8px;}
-  /* 色环进一步缩小 */
-  .color-wheel{width:120px;height:120px;}
-  .cw-square{top:13px;left:13px;width:94px;height:94px;}
+  /* 色环：竖排，小屏缩小但保持可操作 */
+  .color-wheel{width:190px;height:190px;}
+  /* 方块按比例：95*(190/240)=75px，四角顶内圈 */
+  .cw-square{width:75px;height:75px;border-radius:3px;}
+  .cw-sliders{width:190px;}
+  .cw-slider-row{grid-template-columns:24px 26px 1fr 26px 36px;gap:3px;font-size:11px;}
+  .cw-btn{width:24px;height:24px;font-size:14px;}
+  .cw-preview{width:36px;height:24px;}
+  .cw-num-input{width:36px;height:22px;font-size:11px;}
 }
 </style>
 </head>
@@ -436,6 +490,7 @@ body.gradient{background:linear-gradient(135deg,
       <div class="tb-spacer"></div>
       <button class="chip" id="modeBtn" onclick="toggleMode()">每日重置</button>
       <button class="chip" onclick="openTheme()">🎨 换肤</button>
+      <button class="chip" onclick="openSync()">☁ 同步</button>
       <button class="chip" onclick="openCats()">⚙ 分类</button>
     </div>
     <div class="content" id="content"></div>
@@ -444,10 +499,17 @@ body.gradient{background:linear-gradient(135deg,
 
 <!-- Theme modal -->
 <div class="modal" id="themeModal">
-  <div class="modal-box">
-    <h3>🎨 工作台美化方案</h3>
-    <div class="small muted mb">三个色环分别控制背景、卡片方块、按钮主色。拖动色环选色相，内方拖动调饱和/明暗。所有调整实时预览。</div>
+  <div class="modal-box" id="themeModalBox">
+    <div style="display:flex;align-items:center;margin-bottom:12px;">
+      <h3>🎨 工作台美化方案</h3>
+      <div class="modal-ctrls">
+        <button class="modal-ctrl" onclick="toggleModalMin('themeModalBox')" title="最小化">−</button>
+        <button class="modal-ctrl" onclick="toggleModalMax('themeModalBox')" title="最大化/还原">⤢</button>
+      </div>
+    </div>
+    <div class="small muted mb modal-body-collapsible">三个色环分别控制背景、卡片方块、按钮主色。拖动色环选色相，内方拖动调饱和/明暗。所有调整实时预览。</div>
 
+    <div class="modal-body-collapsible">
     <!-- Three color wheels in a row -->
     <div class="row" style="justify-content:center;gap:16px;flex-wrap:wrap;" id="colorWheels">
       <!-- Background wheel -->
@@ -461,9 +523,9 @@ body.gradient{background:linear-gradient(135deg,
           <div class="cw-sv-handle" id="cwBgSvHandle"></div>
         </div>
         <div class="cw-sliders">
-          <div class="cw-slider-row"><span>H</span><button type="button" class="cw-btn" onclick="cwAdj('bg','h',-1)">−</button><input type="range" min="0" max="360" id="cwBgH" oninput="cwFromSliders('bg')"><button type="button" class="cw-btn" onclick="cwAdj('bg','h',1)">+</button><span id="cwBgHV">105</span></div>
-          <div class="cw-slider-row"><span>S</span><button type="button" class="cw-btn" onclick="cwAdj('bg','s',-5)">−</button><input type="range" min="0" max="100" id="cwBgS" oninput="cwFromSliders('bg')"><button type="button" class="cw-btn" onclick="cwAdj('bg','s',5)">+</button><span id="cwBgSV">22</span></div>
-          <div class="cw-slider-row"><span>V</span><button type="button" class="cw-btn" onclick="cwAdj('bg','v',-5)">−</button><input type="range" min="0" max="100" id="cwBgL" oninput="cwFromSliders('bg')"><button type="button" class="cw-btn" onclick="cwAdj('bg','v',5)">+</button><span id="cwBgLV">94</span></div>
+          <div class="cw-slider-row"><span>H</span><button type="button" class="cw-btn" onclick="cwAdj('bg','h',-1)">−</button><input type="range" min="0" max="360" id="cwBgH" oninput="cwFromSliders('bg')"><button type="button" class="cw-btn" onclick="cwAdj('bg','h',1)">+</button><input type="number" class="cw-num-input" id="cwBgHV" min="0" max="360" value="105" oninput="cwFromNumInput('bg','h')" onchange="cwFromNumInput('bg','h')"></div>
+          <div class="cw-slider-row"><span>S</span><button type="button" class="cw-btn" onclick="cwAdj('bg','s',-1)">−</button><input type="range" min="0" max="100" id="cwBgS" oninput="cwFromSliders('bg')"><button type="button" class="cw-btn" onclick="cwAdj('bg','s',1)">+</button><input type="number" class="cw-num-input" id="cwBgSV" min="0" max="100" value="22" oninput="cwFromNumInput('bg','s')" onchange="cwFromNumInput('bg','s')"></div>
+          <div class="cw-slider-row"><span>V</span><button type="button" class="cw-btn" onclick="cwAdj('bg','v',-1)">−</button><input type="range" min="0" max="100" id="cwBgL" oninput="cwFromSliders('bg')"><button type="button" class="cw-btn" onclick="cwAdj('bg','v',1)">+</button><input type="number" class="cw-num-input" id="cwBgLV" min="0" max="100" value="94" oninput="cwFromNumInput('bg','v')" onchange="cwFromNumInput('bg','v')"></div>
         </div>
       </div>
       <!-- Card/box wheel -->
@@ -477,9 +539,9 @@ body.gradient{background:linear-gradient(135deg,
           <div class="cw-sv-handle" id="cwCardSvHandle"></div>
         </div>
         <div class="cw-sliders">
-          <div class="cw-slider-row"><span>H</span><button type="button" class="cw-btn" onclick="cwAdj('card','h',-1)">−</button><input type="range" min="0" max="360" id="cwCardH" oninput="cwFromSliders('card')"><button type="button" class="cw-btn" onclick="cwAdj('card','h',1)">+</button><span id="cwCardHV">105</span></div>
-          <div class="cw-slider-row"><span>S</span><button type="button" class="cw-btn" onclick="cwAdj('card','s',-5)">−</button><input type="range" min="0" max="100" id="cwCardS" oninput="cwFromSliders('card')"><button type="button" class="cw-btn" onclick="cwAdj('card','s',5)">+</button><span id="cwCardSV">18</span></div>
-          <div class="cw-slider-row"><span>V</span><button type="button" class="cw-btn" onclick="cwAdj('card','v',-5)">−</button><input type="range" min="0" max="100" id="cwCardL" oninput="cwFromSliders('card')"><button type="button" class="cw-btn" onclick="cwAdj('card','v',5)">+</button><span id="cwCardLV">96</span></div>
+          <div class="cw-slider-row"><span>H</span><button type="button" class="cw-btn" onclick="cwAdj('card','h',-1)">−</button><input type="range" min="0" max="360" id="cwCardH" oninput="cwFromSliders('card')"><button type="button" class="cw-btn" onclick="cwAdj('card','h',1)">+</button><input type="number" class="cw-num-input" id="cwCardHV" min="0" max="360" value="105" oninput="cwFromNumInput('card','h')" onchange="cwFromNumInput('card','h')"></div>
+          <div class="cw-slider-row"><span>S</span><button type="button" class="cw-btn" onclick="cwAdj('card','s',-1)">−</button><input type="range" min="0" max="100" id="cwCardS" oninput="cwFromSliders('card')"><button type="button" class="cw-btn" onclick="cwAdj('card','s',1)">+</button><input type="number" class="cw-num-input" id="cwCardSV" min="0" max="100" value="18" oninput="cwFromNumInput('card','s')" onchange="cwFromNumInput('card','s')"></div>
+          <div class="cw-slider-row"><span>V</span><button type="button" class="cw-btn" onclick="cwAdj('card','v',-1)">−</button><input type="range" min="0" max="100" id="cwCardL" oninput="cwFromSliders('card')"><button type="button" class="cw-btn" onclick="cwAdj('card','v',1)">+</button><input type="number" class="cw-num-input" id="cwCardLV" min="0" max="100" value="96" oninput="cwFromNumInput('card','v')" onchange="cwFromNumInput('card','v')"></div>
         </div>
       </div>
       <!-- Accent/button wheel -->
@@ -493,14 +555,21 @@ body.gradient{background:linear-gradient(135deg,
           <div class="cw-sv-handle" id="cwAccentSvHandle"></div>
         </div>
         <div class="cw-sliders">
-          <div class="cw-slider-row"><span>H</span><button type="button" class="cw-btn" onclick="cwAdj('accent','h',-1)">−</button><input type="range" min="0" max="360" id="cwAccentH" oninput="cwFromSliders('accent')"><button type="button" class="cw-btn" onclick="cwAdj('accent','h',1)">+</button><span id="cwAccentHV">112</span></div>
-          <div class="cw-slider-row"><span>S</span><button type="button" class="cw-btn" onclick="cwAdj('accent','s',-5)">−</button><input type="range" min="0" max="100" id="cwAccentS" oninput="cwFromSliders('accent')"><button type="button" class="cw-btn" onclick="cwAdj('accent','s',5)">+</button><span id="cwAccentSV">38</span></div>
-          <div class="cw-slider-row"><span>V</span><button type="button" class="cw-btn" onclick="cwAdj('accent','v',-5)">−</button><input type="range" min="0" max="100" id="cwAccentL" oninput="cwFromSliders('accent')"><button type="button" class="cw-btn" onclick="cwAdj('accent','v',5)">+</button><span id="cwAccentLV">42</span></div>
+          <div class="cw-slider-row"><span>H</span><button type="button" class="cw-btn" onclick="cwAdj('accent','h',-1)">−</button><input type="range" min="0" max="360" id="cwAccentH" oninput="cwFromSliders('accent')"><button type="button" class="cw-btn" onclick="cwAdj('accent','h',1)">+</button><input type="number" class="cw-num-input" id="cwAccentHV" min="0" max="360" value="112" oninput="cwFromNumInput('accent','h')" onchange="cwFromNumInput('accent','h')"></div>
+          <div class="cw-slider-row"><span>S</span><button type="button" class="cw-btn" onclick="cwAdj('accent','s',-1)">−</button><input type="range" min="0" max="100" id="cwAccentS" oninput="cwFromSliders('accent')"><button type="button" class="cw-btn" onclick="cwAdj('accent','s',1)">+</button><input type="number" class="cw-num-input" id="cwAccentSV" min="0" max="100" value="38" oninput="cwFromNumInput('accent','s')" onchange="cwFromNumInput('accent','s')"></div>
+          <div class="cw-slider-row"><span>V</span><button type="button" class="cw-btn" onclick="cwAdj('accent','v',-1)">−</button><input type="range" min="0" max="100" id="cwAccentL" oninput="cwFromSliders('accent')"><button type="button" class="cw-btn" onclick="cwAdj('accent','v',1)">+</button><input type="number" class="cw-num-input" id="cwAccentLV" min="0" max="100" value="42" oninput="cwFromNumInput('accent','v')" onchange="cwFromNumInput('accent','v')"></div>
         </div>
       </div>
     </div>
 
-    <!-- Presets row (compact) -->
+    <!-- Save current scheme (compact) -->
+    <div class="mt modal-body-collapsible" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+      <div style="font-weight:600;font-size:12.5px;color:#3a4a3a;">💾 保存当前方案：</div>
+      <input id="schemeNameInput" placeholder="起个名字…" maxlength="16" style="width:110px;font-size:12.5px;padding:6px 10px;">
+      <button class="btn sm" onclick="saveCustomScheme()">保存</button>
+    </div>
+
+    <!-- Presets row: built-in + custom schemes together -->
     <div class="mt">
       <div class="small muted mb">快捷预设（点击即用）</div>
       <div class="swatches" id="swatches" style="grid-template-columns:repeat(7,1fr);"></div>
@@ -529,11 +598,37 @@ body.gradient{background:linear-gradient(135deg,
       </div>
     </div>
 
-    <div class="row mt" style="justify-content:flex-end">
+    <div class="row mt modal-body-collapsible" style="justify-content:flex-end">
       <button class="btn soft" onclick="closeModal('themeModal')">关闭</button>
       <button class="btn" onclick="saveTheme();closeModal('themeModal')">保存方案</button>
     </div>
-    <div class="hint">提示：换肤只改变视觉，不影响任何记录数据。参数会随工作台本地保存。<br>🌿<b>背景色</b>→ 仅控制最底层主页底色（body背景）；📦<b>卡片色</b>→ 独立控制侧栏/顶栏/所有卡片方块的颜色；🔘<b>按钮主色</b>→ 勾选框/按钮/导航高亮。三者完全独立，互不影响。</div>
+    <div class="hint modal-body-collapsible">提示：换肤只改变视觉，不影响任何记录数据。参数会随工作台本地保存。<br>🌿<b>背景色</b>→ 仅控制最底层主页底色（body背景）；📦<b>卡片色</b>→ 独立控制侧栏/顶栏/所有卡片方块的颜色；🔘<b>按钮主色</b>→ 勾选框/按钮/导航高亮。三者完全独立，互不影响。</div>
+    </div><!-- end modal-body-collapsible -->
+  </div>
+</div>
+
+<!-- Sync / Workspace modal -->
+<div class="modal" id="syncModal">
+  <div class="modal-box">
+    <h3>☁ 多设备同步 · 工作台共享码</h3>
+    <div class="small muted mb">把下方「共享码」复制给<b>属于你自己的其他设备</b>（另一部手机 / 电脑）：在那些设备打开本工作台 → 点「☁ 同步」→ 粘贴此码 → 即可共用同一份数据。朋友不填码，会自动拥有独立的一份，互不干扰。<br>数据存放在云端，电脑与手机哪怕不在同一个 WiFi / 网络也能同步。</div>
+    <div class="card" style="padding:14px;">
+      <div class="row" style="align-items:center;gap:10px;flex-wrap:wrap;">
+        <span class="small muted">我的共享码</span>
+        <code id="wsCode" style="background:#eef3ee;border:1px solid #cdd9cd;border-radius:8px;padding:6px 12px;font-size:16px;font-weight:800;letter-spacing:2px;color:#2b3a2b;">----</code>
+        <button class="btn soft" onclick="copyWsCode()">📋 复制</button>
+      </div>
+      <div class="mt" style="font-weight:600;font-size:14px;">加入其他工作台（粘贴共享码）</div>
+      <div class="row mt" style="align-items:flex-end;gap:8px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:160px;"><div class="small muted">共享码</div>
+          <input id="wsInput" placeholder="例如 GROWTH-7F3A" style="text-transform:uppercase;letter-spacing:1px;"></div>
+        <button class="btn" onclick="joinWsCode()">加入并同步</button>
+      </div>
+      <div class="small muted mt" id="wsMsg"></div>
+    </div>
+    <div class="row mt" style="justify-content:flex-end">
+      <button class="btn soft" onclick="closeModal('syncModal')">关闭</button>
+    </div>
   </div>
 </div>
 
@@ -595,17 +690,19 @@ function setSyncState(s){
   el.className="sync-state sync-"+s;
   el.textContent=s==="syncing"?"同步中…":s==="error"?"同步失败":s==="synced"?"已同步":CLOUD_ON?"仅本地":"未开启";
 }
-async function cloudPull(){
+async function cloudPull(force){
   if(!CLOUD_ON)return false;
   try{
-    const res=await fetch(SUPABASE_URL+"/rest/v1/desk_data?id=eq."+CLOUD_ROW+"&select=payload,updated_at",{headers:{"apikey":SUPABASE_ANON,"Authorization":"Bearer "+SUPABASE_ANON}});
+    const res=await fetch(SUPABASE_URL+"/rest/v1/desk_data?id=eq."+getCloudRow()+"&select=payload,updated_at",{headers:{"apikey":SUPABASE_ANON,"Authorization":"Bearer "+SUPABASE_ANON}});
     if(!res.ok)return false;
     const arr=await res.json();
     if(arr&&arr[0]&&arr[0].payload){
       const remote=arr[0].payload;
       const localT=store.syncedAt?new Date(store.syncedAt).getTime():0;
       const remoteT=new Date(arr[0].updated_at).getTime();
-      if(remoteT>=localT){store=remote;migrate();save();return true;} // 云端更新则覆盖本地
+      if(force||remoteT>=localT){store=remote;migrate();save();return true;} // 云端更新则覆盖本地
+    }else{
+      save(); // 该工作台云端为空：把本机数据推上去建立此工作台（含首次迁移旧数据）
     }
   }catch(e){console.warn("cloud pull failed",e);}
   return false;
@@ -616,11 +713,41 @@ function cloudPush(){
   clearTimeout(_cloudTimer);
   _cloudTimer=setTimeout(async()=>{
     try{
-      const res=await fetch(SUPABASE_URL+"/rest/v1/desk_data",{method:"POST",headers:{"apikey":SUPABASE_ANON,"Authorization":"Bearer "+SUPABASE_ANON,"Content-Type":"application/json","Prefer":"resolution=merge-duplicates"},body:JSON.stringify([{id:CLOUD_ROW,payload:store,updated_at:new Date().toISOString()}])});
+      const res=await fetch(SUPABASE_URL+"/rest/v1/desk_data",{method:"POST",headers:{"apikey":SUPABASE_ANON,"Authorization":"Bearer "+SUPABASE_ANON,"Content-Type":"application/json","Prefer":"resolution=merge-duplicates"},body:JSON.stringify([{id:getCloudRow(),payload:store,updated_at:new Date().toISOString()}])});
       setSyncState(res.ok?"synced":"error");
     }catch(e){setSyncState("error");}
   },700);
 }
+
+/* ============== Workspace code (多设备共享码) ============== */
+const WS_KEY="DESK_WS";
+function getWsCode(){
+  let c=localStorage.getItem(WS_KEY);
+  if(!c){c="GROWTH-"+Math.random().toString(36).slice(2,6).toUpperCase();localStorage.setItem(WS_KEY,c);}
+  return c;
+}
+function getCloudRow(){return "ws_"+getWsCode();}
+function showWsCode(){const e=document.getElementById("wsCode");if(e)e.textContent=getWsCode();}
+function copyWsCode(){
+  const c=getWsCode();const m=document.getElementById("wsMsg");
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(c).then(()=>{if(m)m.textContent="已复制共享码："+c;}).catch(()=>{if(m)m.textContent="复制失败，请手动记下："+c;});
+  }else{if(m)m.textContent="请手动复制共享码："+c;}
+}
+async function joinWsCode(){
+  const inp=document.getElementById("wsInput");const m=document.getElementById("wsMsg");if(!inp)return;
+  let v=(inp.value||"").trim().toUpperCase();
+  if(!v){if(m)m.textContent="请输入共享码";return;}
+  const mine=getWsCode();
+  if(v===mine){if(m)m.textContent="这就是你当前的工作台，无需加入。";return;}
+  localStorage.setItem(WS_KEY,v);
+  if(document.getElementById("wsCode"))document.getElementById("wsCode").textContent=getWsCode();
+  setSyncState("syncing");
+  const changed=await cloudPull(true);
+  if(changed){renderSidebar();renderContent();}
+  if(m)m.textContent="已切换到共享码 "+v+" 并同步数据。";
+}
+function openSync(){showWsCode();openModal("syncModal");}
 
 const DEFAULT_CATS=[
  {id:"tasks",name:"每日任务",icon:"✅",type:"tasks",presets:["运动健身 30分钟","英语练习 30分钟","阅读书籍 10分钟","基金学习 1-2个视频","清理电脑内存"]},
@@ -1174,117 +1301,213 @@ function delCategory(id){
   store.cats=store.cats.filter(c=>c.id!==id);save();renderCatManage();renderSidebar();if(current===id)go("home");
 }
 
-/* ============== Color Wheel Logic ============== */
-let _cwDrag=null; // 'hue'|'sv'|null
+/* ============== Color Wheel Logic —— 修正版：H在圆弧上、SV在方块内、绝不乱飞 ============== */
+
+/* 几何常量（与CSS mask对应）：
+ *   容器半宽 hw, 环内半径比=0.62, 环外半径比=0.87, 环中心线比=(0.62+0.87)/2≈0.745
+ *   点击判定：距中心 > innerR*0.92 且 ≤ ringOuter*1.04 → 色相环
+ *              距中心 ≤ innerR*0.92 → SV方块
+ */
+let _cwDrag=null; // {target, type, el} | null
+
 function initColorWheels(){
   ["bg","card","accent"].forEach(target=>{
     const el=document.getElementById("cw"+target.charAt(0).toUpperCase()+target.slice(1));
     if(!el)return;
-    // hue ring drag
-    el.addEventListener("mousedown",e=>{
-      const rect=el.getBoundingClientRect(),cx=rect.width/2,cy=rect.height/2;
-      const dx=e.clientX-rect.left-cx,dy=e.clientY-rect.top-cy;
-      if(Math.sqrt(dx*dx+dy*dy)>62&&Math.sqrt(dx*dx+dy*dy)<80){_cwDrag={target,type:"hue",el};cwDragMove(e);e.preventDefault();}
-    });
-    // SV square drag
-    const sq=el.querySelector(".cw-square");
-    if(sq)sq.addEventListener("mousedown",e=>{_cwDrag={target,type:"sv",el};cwDragMove(e);e.preventDefault();});
+    el.addEventListener("mousedown",onCWDown);
+    el.addEventListener("touchstart",onCWDown,{passive:false});
   });
-  document.addEventListener("mousemove",e=>{if(_cwDrag)cwDragMove(e);});
-  document.addEventListener("mouseup",()=>{_cwDrag=null;});
-  // touch support
-  document.addEventListener("touchmove",e=>{if(_cwDrag){e.preventDefault();cwDragMove(e.touches[0]);}},{passive:false});
-  document.addEventListener("touchend",()=>{_cwDrag=null;});
 }
+
+function onCWDown(e){
+  const el=e.currentTarget;
+  if(!el)return;
+  const target=el.dataset.target;
+  if(!target)return;
+  e.preventDefault();
+  const touch=e.touches?e.touches[0]:e;
+  const rect=el.getBoundingClientRect();
+  const hw=rect.width/2, hh=rect.height/2;
+  const outerR=Math.min(hw,hh);          // 外圈最大半径 = 容器半宽
+  const innerR=outerR*0.62;               // 环内半径（mask 61%分界）
+  const ringOuter=outerR*0.87;            // 环外半径（mask 87%分界）
+  let dx=touch.clientX-rect.left-hw;
+  let dy=touch.clientY-rect.top-hh;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  // 判定点击区域
+  if(dist>innerR*0.92 && dist<=ringOuter*1.04){
+    _cwDrag={target,type:"hue",el};
+  }else if(dist<=innerR*0.92){
+    _cwDrag={target,type:"sv",el};
+  }else{
+    return;
+  }
+  cwDragMove(e);
+}
+
+document.addEventListener("mousemove",e=>{if(_cwDrag)cwDragMove(e);});
+document.addEventListener("mouseup",()=>{_cwDrag=null;});
+document.addEventListener("touchmove",e=>{if(_cwDrag){e.preventDefault();cwDragMove(e.touches[0]);}},{passive:false});
+document.addEventListener("touchend",()=>{_cwDrag=null;});
+
 function cwDragMove(e){
   if(!_cwDrag)return;
   const target=_cwDrag.target;
   const el=_cwDrag.el;
   const rect=el.getBoundingClientRect();
+
   if(_cwDrag.type==="hue"){
-    const cx=rect.width/2,cy=rect.height/2;
-    let dx=e.clientX-rect.left-cx,dy=e.clientY-rect.top-cy;
+    // ===== 色相H：投影到圆弧上（关键！手柄永远在环的中心线上） =====
+    const hw=rect.width/2, hh=rect.height/2;
+    const outerR=Math.min(hw,hh);
+    const ringCenterR=outerR*0.89;       // 与H手柄定位一致，靠外落在弧线中
+    let dx=e.clientX-rect.left-hw;
+    let dy=e.clientY-rect.top-hh;
     let angle=Math.atan2(dy,dx)*180/Math.PI+90;
     if(angle<0)angle+=360;
+    // ★ 关键修复：将(dx,dy)投影到环中心线圆上，防止"乱飞"
+    const d=Math.sqrt(dx*dx+dy*dy)||1;
+    dx=dx/d*ringCenterR;
+    dy=dy/d*ringCenterR;
     cwSetHue(target,Math.round(angle));
   }else{
-    const sq=el.querySelector(".cw-square"),sqR=sq.getBoundingClientRect();
-    let x=(e.clientX-sqR.left)/sqR.width,y=(e.clientY-sqR.top)/sqR.height;
-    x=Math.max(0,Math.min(1,x));y=Math.max(0,Math.min(1,y));
-    cwSetSV(target,x,y);
+    // ===== SV：限制在方块内部 =====
+    const sq=el.querySelector(".cw-square");
+    if(!sq)return;
+    const sqR=sq.getBoundingClientRect();
+    let x=(e.clientX-sqR.left)/sqR.width;
+    let y=(e.clientY-sqR.top)/sqR.height;
+    x=Math.max(0,Math.min(1,x));
+    y=Math.max(0,Math.min(1,y));
+    cwSetS(target,x);
+    cwSetV(target,1-y);   // 方块上边=V100(白)下边=V0(黑)，与像素y相反，故取反
   }
 }
+
+/* ===== 单轴设置函数（真正独立） ===== */
+
 function cwSetHue(target,h){
   const t=store.theme;
-  if(target==="bg"){t.hue=h;document.getElementById("cwBgH").value=h;document.getElementById("cwBgHV").textContent=h;}
-  else if(target==="card"){t.cHue=h;document.getElementById("cwCardH").value=h;document.getElementById("cwCardHV").textContent=h;}
-  else{t.aHue=h;document.getElementById("cwAccentH").value=h;document.getElementById("cwAccentHV").textContent=h;}
+  h=((h%360)+360)%360;
+  if(target==="bg"){t.hue=h;document.getElementById("cwBgH").value=h;setNum("cwBgHV",h);}
+  else if(target==="card"){t.cHue=h;document.getElementById("cwCardH").value=h;setNum("cwCardHV",h);}
+  else{t.aHue=h;document.getElementById("cwAccentH").value=h;setNum("cwAccentHV",h);}
   save();updateCWHandle(target);applyTheme();
 }
-function cwSetSV(target,s,v){
+
+function cwSetS(target,s){
   const t=store.theme;
-  // HSV模式：s=saturation(0-100), v=value(0-100)
-  // 转存为light供CSS使用（HSV→HSL近似：L ≈ V*(1-S/2)）
-  if(target==="bg"){t.sat=Math.round(s*100);t.light=Math.round(v*100);
-    document.getElementById("cwBgS").value=t.sat;document.getElementById("cwBgSV").textContent=t.sat;
-    document.getElementById("cwBgL").value=t.light;document.getElementById("cwBgLV").textContent=t.light;}
-  else if(target==="card"){t.cSat=Math.round(s*100);t.cLight=Math.round(v*100);
-    document.getElementById("cwCardS").value=t.cSat;document.getElementById("cwCardSV").textContent=t.cSat;
-    document.getElementById("cwCardL").value=t.cLight;document.getElementById("cwCardLV").textContent=t.cLight;}
-  else{t.aSat=Math.round(s*100); t.aLight=Math.round(v*100);
-    document.getElementById("cwAccentS").value=t.aSat;document.getElementById("cwAccentSV").textContent=t.aSat;
-    document.getElementById("cwAccentL").value=t.aLight;document.getElementById("cwAccentLV").textContent=t.aLight;}
+  s=Math.max(0,Math.min(1,s));
+  const sVal=Math.round(s*100);
+  if(target==="bg"){t.sat=sVal;document.getElementById("cwBgS").value=sVal;setNum("cwBgSV",sVal);}
+  else if(target==="card"){t.cSat=sVal;document.getElementById("cwCardS").value=sVal;setNum("cwCardSV",sVal);}
+  else{t.aSat=sVal;document.getElementById("cwAccentS").value=sVal;setNum("cwAccentSV",sVal);}
   save();updateCWHandle(target);applyTheme();
 }
+
+function cwSetV(target,v){
+  const t=store.theme;
+  v=Math.max(0,Math.min(1,v));
+  const vVal=Math.round(v*100);
+  if(target==="bg"){t.light=vVal;document.getElementById("cwBgL").value=vVal;setNum("cwBgLV",vVal);}
+  else if(target==="card"){t.cLight=vVal;document.getElementById("cwCardL").value=vVal;setNum("cwCardLV",vVal);}
+  else{t.aLight=vVal;document.getElementById("cwAccentL").value=vVal;setNum("cwAccentLV",vVal);}
+  save();updateCWHandle(target);applyTheme();
+}
+
+/* ===== 从输入控件触发更新 ===== */
+
+function cwFromNumInput(target,channel){
+  const prefix=target==="bg"?"cwBg":target==="card"?"cwCard":"cwAccent";
+  const idMap={h:prefix+"H",s:prefix+"S",v:prefix+"L"};
+  const numIdMap={h:prefix+"HV",s:prefix+"SV",v:prefix+"LV"};
+  const el=document.getElementById(numIdMap[channel]);
+  if(!el)return;
+  let val=parseInt(el.value)||0;
+  if(channel==='h')val=Math.max(0,Math.min(360,val));
+  else val=Math.max(0,Math.min(100,val));
+  el.value=val;
+  document.getElementById(idMap[channel]).value=val;
+  if(channel==='h')cwSetHue(target,val);
+  else if(channel==='s')cwSetS(target,val/100);
+  else cwSetV(target,val/100);
+}
+
 function cwFromSliders(target){
   const t=store.theme;
   if(target==="bg"){
-    t.hue=+document.getElementById("cwBgH").value;t.sat=+document.getElementById("cwBgS").value;t.light=+document.getElementById("cwBgL").value;
-    document.getElementById("cwBgHV").textContent=t.hue;document.getElementById("cwBgSV").textContent=t.sat;document.getElementById("cwBgLV").textContent=t.light;
+    t.hue=+document.getElementById("cwBgH").value;
+    t.sat=+document.getElementById("cwBgS").value;
+    t.light=+document.getElementById("cwBgL").value;
+    setNum("cwBgHV",t.hue);setNum("cwBgSV",t.sat);setNum("cwBgLV",t.light);
   }else if(target==="card"){
-    t.cHue=+document.getElementById("cwCardH").value;t.cSat=+document.getElementById("cwCardS").value;t.cLight=+document.getElementById("cwCardL").value;
-    document.getElementById("cwCardHV").textContent=t.cHue;document.getElementById("cwCardSV").textContent=t.cSat;document.getElementById("cwCardLV").textContent=t.cLight;
+    t.cHue=+document.getElementById("cwCardH").value;
+    t.cSat=+document.getElementById("cwCardS").value;
+    t.cLight=+document.getElementById("cwCardL").value;
+    setNum("cwCardHV",t.cHue);setNum("cwCardSV",t.cSat);setNum("cwCardLV",t.cLight);
   }else{
-    t.aHue=+document.getElementById("cwAccentH").value;t.aSat=+document.getElementById("cwAccentS").value;t.aLight=+document.getElementById("cwAccentL").value;
-    document.getElementById("cwAccentHV").textContent=t.aHue;document.getElementById("cwAccentSV").textContent=t.aSat;document.getElementById("cwAccentLV").textContent=t.aLight;
+    t.aHue=+document.getElementById("cwAccentH").value;
+    t.aSat=+document.getElementById("cwAccentS").value;
+    t.aLight=+document.getElementById("cwAccentL").value;
+    setNum("cwAccentHV",t.aHue);setNum("cwAccentSV",t.aSat);setNum("cwAccentLV",t.aLight);
   }
   save();updateCWHandle(target);applyTheme();
 }
-/* HSV 加减按钮：h±1, s/v ±step */
+
 function cwAdj(target,channel,step){
-  const t=store.theme;
   const prefix=target==="bg"?"cwBg":target==="card"?"cwCard":"cwAccent";
-  const hEl=document.getElementById(prefix+"H"),sEl=document.getElementById(prefix+"S"),vEl=document.getElementById(prefix+"L");
-  let val;
-  if(channel==='h'){val=+hEl.value;val=Math.max(0,Math.min(360,val+step));hEl.value=val;}
-  else if(channel==='s'){val=+sEl.value;val=Math.max(0,Math.min(100,val+step));sEl.value=val;}
-  else{val=+vEl.value;val=Math.max(0,Math.min(100,val+step));vEl.value=val;}
-  cwFromSliders(target);
+  const idMap={h:prefix+"H",s:prefix+"S",v:prefix+"L"};
+  const el=document.getElementById(idMap[channel]);
+  if(!el)return;
+  let val=+el.value;
+  const max=channel==='h'?360:100;
+  val=Math.max(0,Math.min(max,val+step));
+  el.value=val;
+  if(channel==='h')cwSetHue(target,val);
+  else if(channel==='s')cwSetS(target,val/100);
+  else cwSetV(target,val/100);
 }
+
+function setNum(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+
+/*
+ * 更新手柄位置：
+ *   H手柄 → 在圆环中心线圆弧上（radius = 容器半宽 × 0.745）
+ *   SV手柄 → 在方块内（x = S%×方宽, y = V%×方高, V100=下边沿）
+ */
 function updateCWHandle(target){
   const prefix=target==="bg"?"cwBg":target==="card"?"cwCard":"cwAccent";
   const el=document.getElementById(prefix);
   if(!el)return;
-  const rect=el.getBoundingClientRect(),cx=rect.width/2,cy=rect.height/2,radius=72;
   const t=store.theme;
   let h,s,l;
-  if(target==="bg"){h=t.hue;s=t.sat;l;t.light;}else if(target==="card"){h=t.cHue;s=t.cSat;l=t.cLight;}else{h=t.aHue;s=t.aSat;l=t.aLight;}
-  // hue handle position on ring
+  if(target==="bg"){h=t.hue;s=t.sat;l=t.light;}else if(target==="card"){h=t.cHue;s=t.cSat;l=t.cLight;}else{h=t.aHue;s=t.aSat;l=t.aLight;}
+  const w=el.offsetWidth, hw=w/2;
+  // --- H手柄：略偏外，落在色环圆弧中 ---
+  const ringR=hw*0.89;
   const rad=(h-90)*Math.PI/180;
-  const hx=cx+Math.cos(rad)*radius,hy=cy+Math.sin(rad)*radius;
-  const hh=document.getElementById(prefix+"HueHandle");
-  if(hh){hh.style.left=(hx-rect.left)+"px";hh.style.top=(hy-rect.top)+"px";}
-  // sv square fill hue
+  const hx=hw+Math.cos(rad)*ringR, hy=hw+Math.sin(rad)*ringR;
+  const hhEl=document.getElementById(prefix+"HueHandle");
+  if(hhEl){hhEl.style.left=hx+"px";hhEl.style.top=hy+"px";}
+  // SV方块填充色相
   const sqFill=el.querySelector(".cw-sq-fill");
   if(sqFill)sqFill.style.setProperty("--cw-h",h);
-  // sv handle position in square (HSV: x=saturation, y=inverted value)
-  const sq=el.querySelector(".cw-square"),sqR=sq?sq.getBoundingClientRect():null;
-  if(sqR){
-    const svX=s/100*(sqR.width),svY=(1-l/100)*(sqR.height); // l now stores V(0-100), top=bright
-    const sh=document.getElementById(prefix+"SvHandle");
-    if(sh){sh.style.left=svX+"px";sh.style.top=svY+"px";}
+  // --- SV手柄：S控制横向(0左~100右)，V控制纵向(0下~100上) ---
+  const sq=el.querySelector(".cw-square");
+  if(sq){
+    const sw=sq.offsetWidth, sh=sq.offsetHeight;
+    // ★ 用 getBoundingClientRect 取方块真实渲染位置（含 translate(-50%,-50%) 居中位移）
+    const elRect=el.getBoundingClientRect();
+    const sqRect=sq.getBoundingClientRect();
+    const sqOffX=sqRect.left-elRect.left;
+    const sqOffY=sqRect.top-elRect.top;
+    const svX=sqOffX+(s/100)*sw;
+    const svY=sqOffY+((100-l)/100)*sh;      // V=100→最上边(白)，V=0→最下边(黑)：标准HSV
+    const svHandle=document.getElementById(prefix+"SvHandle");
+    if(svHandle){svHandle.style.left=svX+"px";svHandle.style.top=svY+"px";}
   }
 }
+
 function updateCWPreviews(){
   ["bg","card","accent"].forEach(t=>{
     const el=document.getElementById("cw"+t.charAt(0).toUpperCase()+t.slice(1)+"Prev");
@@ -1349,7 +1572,29 @@ function matchPreset(i){
 }
 function openTheme(){
   const wrap=document.getElementById("swatches");
-  wrap.innerHTML=PRESETS.map((p,i)=>`<div class="swatch-item"><div class="swatch ${matchPreset(i)?'on':''}" style="background:hsl(${p.hue} ${p.sat}% ${p.light}%)" onclick="applyPreset(${i})" title="${p.name}"></div><div class="swatch-name">${p.name}</div></div>`).join("");
+  // 内置预设
+  let html=PRESETS.map((p,i)=>`<div class="swatch-item"><div class="swatch ${matchPreset(i)?'on':''}" style="background:hsl(${p.hue} ${p.sat}% ${p.light}%)" onclick="applyPreset(${i})" title="${p.name}"></div><div class="swatch-name">${p.name}</div></div>`).join("");
+  // 自定义方案（跟在后面，同样圆形色块样式）
+  const customs=getCustomSchemes();
+  const cur=store.theme;
+  const isMatch=s=>{
+    return cur.hue===s.hue&&cur.sat===s.sat&&cur.light===s.light
+      &&cur.cHue===s.cHue&&cur.cSat===s.cSat&&cur.cLight===s.cLight
+      &&cur.aHue===s.aHue&&cur.aSat===s.aSat&&cur.aLight===s.aLight;
+  };
+  if(customs.length){
+    html+=customs.map(s=>{
+      const on=isMatch(s)?" on":"";
+      const bdr=on?"border-color:#4a8a4a;box-shadow:0 0 0 3px rgba(46,125,50,.32)":"";
+      return `<div class="swatch-item">
+        <div class="swatch${on}" style="background:hsl(${s.hue} ${s.sat}% ${s.light}%);${bdr};position:relative;" onclick="applyCustomScheme('${s.id}')" title="${esc(s.name)}（自定义）">
+          <span style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:#e36d6d;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid #fff;line-height:1;" onclick="event.stopPropagation();deleteCustomScheme('${s.id}')">✕</span>
+        </div>
+        <div class="swatch-name" style="color:#5a6a5a!important;">${esc(s.name)}</div>
+      </div>`;
+    }).join("");
+  }
+  wrap.innerHTML=html;
   syncThemeUI();applyTheme();
   // init color wheel drag handlers (once)
   if(!window._cwInit){initColorWheels();window._cwInit=true;}
@@ -1380,9 +1625,9 @@ function liveTheme(){
   t.dark=document.getElementById("tDark").classList.contains("on");
   t.rad=+document.getElementById("sRad").value;
   // update labels
-  document.getElementById("cwBgHV").textContent=t.hue;document.getElementById("cwBgSV").textContent=t.sat;document.getElementById("cwBgLV").textContent=t.light;
-  document.getElementById("cwCardHV").textContent=t.cHue;document.getElementById("cwCardSV").textContent=t.cSat;document.getElementById("cwCardLV").textContent=t.cLight;
-  document.getElementById("cwAccentHV").textContent=t.aHue;document.getElementById("cwAccentSV").textContent=t.aSat;document.getElementById("cwAccentLV").textContent=t.aLight;
+  setNum("cwBgHV",t.hue);setNum("cwBgSV",t.sat);setNum("cwBgLV",t.light);
+  setNum("cwCardHV",t.cHue);setNum("cwCardSV",t.cSat);setNum("cwCardLV",t.cLight);
+  setNum("cwAccentHV",t.aHue);setNum("cwAccentSV",t.aSat);setNum("cwAccentLV",t.aLight);
   ["bg","card","accent"].forEach(updateCWHandle);
   updateCWPreviews();
   applyTheme();
@@ -1391,16 +1636,16 @@ function syncThemeUI(){
   const t=store.theme;
   // color wheel sliders
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
-  const lab=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  set("cwBgH",t.hue);lab("cwBgHV",t.hue);
-  set("cwBgS",t.sat);lab("cwBgSV",t.sat);
-  set("cwBgL",t.light);lab("cwBgLV",t.light);
-  set("cwCardH",t.cHue||105);lab("cwCardHV",t.cHue||105);
-  set("cwCardS",t.cSat||18);lab("cwCardSV",t.cSat||18);
-  set("cwCardL",t.cLight||96);lab("cwCardLV",t.cLight||96);
-  set("cwAccentH",t.aHue);lab("cwAccentHV",t.aHue);
-  set("cwAccentS",t.aSat);lab("cwAccentSV",t.aSat);
-  set("cwAccentL",t.aLight);lab("cwAccentLV",t.aLight);
+  const setN=setNum;
+  set("cwBgH",t.hue);setN("cwBgHV",t.hue);
+  set("cwBgS",t.sat);setN("cwBgSV",t.sat);
+  set("cwBgL",t.light);setN("cwBgLV",t.light);
+  set("cwCardH",t.cHue||105);setN("cwCardHV",t.cHue||105);
+  set("cwCardS",t.cSat||18);setN("cwCardSV",t.cSat||18);
+  set("cwCardL",t.cLight||96);setN("cwCardLV",t.cLight||96);
+  set("cwAccentH",t.aHue);setN("cwAccentHV",t.aHue);
+  set("cwAccentS",t.aSat);setN("cwAccentSV",t.aSat);
+  set("cwAccentL",t.aLight);setN("cwAccentLV",t.aLight);
   // toggles
   const tog=(id,v)=>{const e=document.getElementById(id);if(e)e.classList.toggle("on",!!v);};
   // glass mode buttons (replace old tGlass switch)
@@ -1420,6 +1665,92 @@ function syncThemeUI(){
 function saveTheme(){save();
   // clear preset highlight since it may now be a custom blend
   document.querySelectorAll('#swatches .swatch').forEach(e=>e.classList.remove('on'));
+}
+
+/* ============== Modal 缩放控制 ============== */
+function toggleModalMin(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.toggle("minimized");
+}
+function toggleModalMax(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(el._wasMax){
+    // 还原
+    el.style.width="";el.style.height="";
+    el._wasMax=false;
+  }else{
+    // 最大化
+    el.style.width="96vw";el.style.height="92vh";
+    el._wasMax=true;
+    el.classList.remove("minimized");
+  }
+}
+
+/* ============== 自定义美化方案保存/加载 ============== */
+const CUSTOM_SCHEMES_KEY="growth_desk_custom_schemes";
+function getCustomSchemes(){
+  try{return JSON.parse(localStorage.getItem(CUSTOM_SCHEMES_KEY))||[];}catch(e){return[];}
+}
+function saveCustomSchemes(arr){localStorage.setItem(CUSTOM_SCHEMES_KEY,JSON.stringify(arr));}
+function saveCustomScheme(){
+  const nameInput=document.getElementById("schemeNameInput");
+  if(!nameInput)return;
+  let name=(nameInput.value||"").trim();
+  if(!name){alert("请给方案起个名字");return;}
+  name=name.slice(0,16);
+  const t=store.theme;
+  const scheme={
+    id:uid(),
+    name:name,
+    hue:t.hue,sat:t.sat,light:t.light,
+    cHue:t.cHue,cSat:t.cSat,cLight:t.cLight,
+    aHue:t.aHue,aSat:t.aSat,aLight:t.aLight,
+    glassMode:t.glassMode||"off",grad:!!t.grad,dark:!!t.dark,
+    rad:t.rad,op:t.op,texture:t.texture||"none",dotAlpha:t.dotAlpha||50
+  };
+  const arr=getCustomSchemes();
+  arr.unshift(scheme);
+  if(arr.length>12)arr.length=12;
+  saveCustomSchemes(arr);
+  nameInput.value="";
+  // 重新渲染预设区（内置+自定义合并）
+  const wrap=document.getElementById("swatches");
+  if(wrap){
+    let html=PRESETS.map((p,i)=>`<div class="swatch-item"><div class="swatch ${matchPreset(i)?'on':''}" style="background:hsl(${p.hue} ${p.sat}% ${p.light}%)" onclick="applyPreset(${i})" title="${p.name}"></div><div class="swatch-name">${p.name}</div></div>`).join("");
+    html+=arr.map(s=>`<div class="swatch-item"><div class="swatch on" style="background:hsl(${s.hue} ${s.sat}% ${s.light}%);border-color:#4a8a4a;box-shadow:0 0 0 3px rgba(46,125,50,.32);position:relative;" onclick="applyCustomScheme('${s.id}')" title="${esc(s.name)}（自定义）"><span style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:#e36d6d;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid #fff;line-height:1;" onclick="event.stopPropagation();deleteCustomScheme('${s.id}')">✕</span></div><div class="swatch-name" style="color:#5a6a5a!important;">${esc(s.name)}</div></div>`).join("");
+    wrap.innerHTML=html;
+  }
+  // 高亮提示
+  const toast=document.createElement("div");
+  toast.style.cssText="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#3a5a3a;color:#fff;padding:8px 18px;border-radius:10px;font-size:12px;font-weight:600;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.15);";
+  toast.textContent="✅ 方案「"+name+"」已保存到预设";
+  document.body.appendChild(toast);
+  setTimeout(()=>{toast.style.opacity="0";toast.style.transition="opacity .3s";setTimeout(()=>toast.remove(),300);},1500);
+}
+function applyCustomScheme(id){
+  const arr=getCustomSchemes();
+  const s=arr.find(x=>x.id===id);
+  if(!s)return;
+  const t=store.theme;
+  Object.assign(t,{hue:s.hue,sat:s.sat,light:s.light,
+    cHue:s.cHue,cSat:s.cSat,cLight:s.cLight,
+    aHue:s.aHue,aSat:s.aSat,aLight:s.aLight,
+    glassMode:s.glassMode||"off",grad:!!s.grad,dark:!!s.dark,
+    rad:s.rad,op:s.op,texture:s.texture||"none",dotAlpha:s.dotAlpha||50});
+  syncThemeUI();applyTheme();save();
+  // 刷新预设高亮
+  openTheme(); // 重新渲染整个预设区以更新on状态
+}
+function deleteCustomScheme(id,e){
+  if(e)e.stopPropagation();
+  if(!confirm("确定删除这个自定义方案？"))return;
+  let arr=getCustomSchemes();
+  arr=arr.filter(x=>x.id!==id);
+  saveCustomSchemes(arr);
+  // 刷新预设区
+  openTheme();
 }
 
 /* ============== Utils ============== */
@@ -1444,6 +1775,12 @@ function boot(){
   setInterval(()=>{const d=new Date();const hc=document.getElementById("homeClock");if(hc)hc.textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());const hd=document.getElementById("homeDate");if(hd)hd.textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日 · 周"+"日一二三四五六"[d.getDay()];},1000);
 }
 boot();
+/* ============== PWA：注册 Service Worker（让应用可"安装"到手机桌面） ============== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(err=>console.warn('SW注册失败:',err));
+  });
+}
 </script>
 </body>
 </html>
