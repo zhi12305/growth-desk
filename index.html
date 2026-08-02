@@ -403,17 +403,15 @@ body.gradient{background:linear-gradient(135deg,
   .toggle-row{font-size:13px;padding:8px 0;}
 }
 @media(max-width:480px){
-  /* 超小屏：侧栏变底栏 */
-  .app{flex-direction:column;}
-  .sidebar{width:100%!important;flex:0 0 auto;flex-direction:row;overflow-x:auto;
-    border-right:none;border-bottom:1px solid var(--line);padding:6px 10px;gap:8px;
-    justify-content:center;box-shadow:none;}
-  .nav-item{flex:0 0 auto;font-size:10px;padding:6px 10px;}
-  .nav-item .nm{display:inline;font-size:10px;}
+  /* 手机：保持左侧竖栏（侧边栏），分类多了可竖向滑动 */
+  .app{flex-direction:row;}            /* 关键：不改成 column，保持左栏+主区 */
+  .sidebar{width:74px;flex:0 0 74px;padding:10px 4px;gap:5px;overflow-y:auto;}
+  .nav-item{font-size:9.5px;padding:8px 2px;}
   .nav-item .ic{font-size:18px;}
-  .logo{display:none;}
-  .nav-spacer{display:none;}
-  .main{flex:1;overflow-y:auto;}
+  .nav-item .nm{display:block;font-size:9.5px;line-height:1.15;margin-top:2px;} /* 显示分类名 */
+  .logo{font-size:19px!important;margin-bottom:4px;}
+  .nav-spacer{display:none;}           /* 手机空间小，不撑开底部留白，让分类紧凑可滑 */
+  .main{flex:1;overflow-y:auto;min-width:0;}
   .content{padding:10px 8px;}
   /* 色环进一步缩小 */
   .color-wheel{width:120px;height:120px;}
