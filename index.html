@@ -155,10 +155,17 @@ body.sb-collapsed .sidebar{position:absolute;top:0;bottom:0;left:0;transform:tra
 /* 顶栏高度调节浮层：紧贴顶栏下方、不遮挡顶栏，拖动可实时预览 */
 .tb-pad-pop{
   position:absolute;top:calc(100% + 6px);right:10px;z-index:60;
-  background:var(--card);border:1px solid var(--line);border-radius:14px;
-  box-shadow:var(--shadow);padding:12px 14px;width:min(280px,86vw);
+  /* 纯白不透明背景，避免被 var(--card)（半透明 0.93）带成透出底色的「半透明卡」 */
+  background:#ffffff;
+  border:1px solid rgba(20,20,20,.12);border-radius:14px;
+  box-shadow:0 8px 28px rgba(20,20,20,.18);padding:12px 14px;width:min(280px,86vw);
+  color:#141414;
 }
-.tb-pad-title{font-weight:600;font-size:13px;margin-bottom:8px;}
+/* 深色模式下用浅灰不透明背景 */
+.dark .tb-pad-pop{background:#f5f7f3;border-color:rgba(0,0,0,.2);}
+.dark .tb-pad-pop .tb-pad-title,.dark .tb-pad-pop{color:#1a201a;}
+.tb-pad-title{font-weight:600;font-size:13px;margin-bottom:8px;color:#141414;}
+.tb-pad-pop #vTop{color:#1a201a;font-weight:600;}
 .tb-pad-btn{white-space:nowrap;}
 .tb-title{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;flex:0 0 auto;}
 .tb-title .sub{font-weight:400;font-size:11px;color:var(--muted);}
@@ -535,7 +542,7 @@ body.gradient{background:linear-gradient(135deg,
       <div class="tb-pad-pop" id="tbPadPop" style="display:none;">
         <div class="tb-pad-title">⬇️ 顶栏高度（状态栏间距）</div>
         <div class="slider-row" style="align-items:center;gap:8px;">
-          <input type="range" min="0" max="120" id="sTop" oninput="liveTheme()" style="flex:1;">
+          <input type="range" min="0" max="120" id="sTop" oninput="liveTopbarPad()" style="flex:1;">
           <span id="vTop" style="min-width:44px;text-align:right">48px</span>
         </div>
         <div class="small muted">0 = 紧贴状态栏 · 120 = 最大留白，随方案保存</div>
@@ -982,6 +989,16 @@ function toggleTopbarPadPop(){
     const sTop=document.getElementById("sTop");if(sTop)sTop.value=def;
     const vT=document.getElementById("vTop");if(vT)vT.textContent=def+"px";
   }
+}
+/* 仅更新顶栏高度——不复用 liveTheme()，避免把 color wheel 默认值覆盖到主题色导致整页变色 */
+function liveTopbarPad(){
+  const sTop=document.getElementById("sTop");
+  if(!sTop)return;
+  const v=+sTop.value;
+  store.layout=store.layout||{};
+  store.layout.topbarPad=v;
+  const vT=document.getElementById("vTop");if(vT)vT.textContent=v+"px";
+  applyLayout();
 }
 function go(id){
   current=id;
