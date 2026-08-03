@@ -147,11 +147,12 @@ body.sb-collapsed .sidebar{position:absolute;top:0;bottom:0;left:0;transform:tra
 .topbar{
   display:flex;align-items:center;gap:10px;
   /* 让出系统状态栏高度（PWA 独立窗口时 env 返回非零，普通浏览器返回 0） */
-  padding:max(12px, env(safe-area-inset-top)) 18px 12px;
+  padding:18px 18px 12px;
   background:var(--card);border-bottom:1px solid var(--line);box-shadow:var(--shadow);
   /* 确保顶栏永远不透明，不受背景色影响 */
   isolation:isolate;
 }
+.pwa .topbar{padding-top:calc(env(safe-area-inset-top, 28px) + 16px);}
 .tb-title{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;flex:0 0 auto;}
 .tb-title .sub{font-weight:400;font-size:11px;color:var(--muted);}
 .clock{font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;color:var(--accent);
@@ -443,7 +444,7 @@ body.gradient{background:linear-gradient(135deg,
   .home-hero{grid-template-columns:1fr;}
   .stat-grid{grid-template-columns:repeat(2,1fr);}
   /* 顶栏紧凑 */
-  .topbar{padding:max(8px, env(safe-area-inset-top)) 10px 8px;gap:6px;flex-wrap:wrap;}
+  .topbar{padding:16px 10px 8px;gap:6px;flex-wrap:wrap;}
   .tb-title{font-size:14px;}
   .chip{font-size:11px;padding:5px 9px;}
   /* 卡片内间距缩小 */
@@ -998,6 +999,16 @@ function renderProfile(){
       </div>
       <div id="profileMsg" class="small mt" style="color:var(--accent);min-height:16px"></div>
     </div>
+    <div class="card mt" style="padding:18px 20px">
+      <div class="small muted mb">数据备份与跨设备同步</div>
+      <div class="row mt" style="gap:10px;justify-content:flex-start;flex-wrap:wrap">
+        <button class="btn" onclick="exportData()">⬇️ 导出备份</button>
+        <button class="btn ghost" onclick="document.getElementById('importFile').click()">⬆️ 导入备份</button>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importData(this)">
+        <button class="btn soft" onclick="openSync()">☁ 跨设备同步</button>
+      </div>
+      <div class="small muted mt">导出可把全部数据存成文件（换手机/电脑时用“导入”恢复）；跨设备同步可让电脑和手机共用同一份数据。</div>
+    </div>
   </div>`;
 }
 function pickAvatar(inp){
@@ -1018,8 +1029,37 @@ function saveProfile(){
   store.profile.name=(inp?inp.value.trim():"")||"";
   save();
   const m=document.getElementById("profileMsg");if(m)m.textContent="已保存 ✓";
-  renderSidebar();
-  if(m)setTimeout(()=>{m.textContent="";},1500);
+    renderSidebar();
+    if(m)setTimeout(()=>{m.textContent="";},1500);
+}
+function exportData(){
+  try{
+    const data=JSON.stringify(store,null,2);
+    const blob=new Blob([data],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    const d=new Date();
+    a.href=url;a.download="xiaona-desk-backup-"+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+".json";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+    const m=document.getElementById("profileMsg");if(m){m.textContent="已导出备份文件 ✓";setTimeout(()=>{if(m)m.textContent="";},2000);}
+  }catch(e){const m=document.getElementById("profileMsg");if(m)m.textContent="导出失败";}
+}
+function importData(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const obj=JSON.parse(r.result);
+      if(!obj||typeof obj!=="object"||Array.isArray(obj))throw new Error("格式不对");
+      store=obj;
+      save();applyTheme();renderSidebar();renderContent();applyBgMedia();
+      const m=document.getElementById("profileMsg");if(m){m.textContent="已导入并恢复数据 ✓";setTimeout(()=>{if(m)m.textContent="";},2500);}
+    }catch(e){
+      const m=document.getElementById("profileMsg");if(m){m.textContent="导入失败：文件格式不正确";setTimeout(()=>{if(m)m.textContent="";},2500);}
+    }
+  };
+  r.readAsText(f);
+  inp.value="";
 }
 
 /* ============== Home ============== */
@@ -1908,6 +1948,7 @@ function updateBgMediaPreview(){
 /* ============== Boot ============== */
 function boot(){
   if(window.innerWidth<=900) document.body.classList.add("sb-collapsed");
+  if((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone)document.body.classList.add('pwa');
   applyTheme();refreshModeBtn();renderSidebar();renderContent();applyBgMedia();
   if(CLOUD_ON){
     setSyncState("syncing");
