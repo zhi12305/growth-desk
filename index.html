@@ -443,8 +443,8 @@ body.gradient{background:linear-gradient(135deg,
   .content{padding:10px;}
   .home-hero{grid-template-columns:1fr;}
   .stat-grid{grid-template-columns:repeat(2,1fr);}
-  /* 顶栏紧凑 */
-  .topbar{padding:16px 10px 8px;gap:6px;flex-wrap:wrap;}
+  /* 顶栏紧凑 + 硬让出状态栏高度（不依赖 env，WebView APK 可能不返值） */
+  .topbar{padding:48px 10px 12px;gap:6px;flex-wrap:wrap;min-height:64px;}
   .tb-title{font-size:14px;}
   .chip{font-size:11px;padding:5px 9px;}
   /* 卡片内间距缩小 */
