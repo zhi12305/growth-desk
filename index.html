@@ -149,9 +149,17 @@ body.sb-collapsed .sidebar{position:absolute;top:0;bottom:0;left:0;transform:tra
   /* 顶栏顶部间距改为可调变量（由滑块控制，默认48px让出状态栏） */
   padding:var(--topbar-pad,48px) 18px 12px;
   background:var(--card);border-bottom:1px solid var(--line);box-shadow:var(--shadow);
-  /* 确保顶栏永远不透明，不受背景色影响 */
-  isolation:isolate;
+  /* 确保顶栏永远不透明，不受背景色影响；作为高度调节浮层的定位上下文 */
+  isolation:isolate;position:relative;z-index:40;
 }
+/* 顶栏高度调节浮层：紧贴顶栏下方、不遮挡顶栏，拖动可实时预览 */
+.tb-pad-pop{
+  position:absolute;top:calc(100% + 6px);right:10px;z-index:60;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:12px 14px;width:min(280px,86vw);
+}
+.tb-pad-title{font-weight:600;font-size:13px;margin-bottom:8px;}
+.tb-pad-btn{white-space:nowrap;}
 .tb-title{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;flex:0 0 auto;}
 .tb-title .sub{font-weight:400;font-size:11px;color:var(--muted);}
 .clock{font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;color:var(--accent);
@@ -520,8 +528,18 @@ body.gradient{background:linear-gradient(135deg,
       <div class="tb-spacer"></div>
       <button class="chip" id="modeBtn" onclick="toggleMode()">每日重置</button>
       <button class="chip" onclick="openTheme()">🎨 换肤</button>
+      <button class="chip tb-pad-btn" onclick="toggleTopbarPadPop()" title="调节顶栏高度（状态栏间距）">⬇️ 高度</button>
       <button class="chip" onclick="openSync()">☁ 同步</button>
       <button class="chip" onclick="openCats()">⚙ 分类</button>
+      <!-- 顶栏高度调节浮层：紧贴顶栏下方、不遮挡顶栏，拖动可实时预览高度变化 -->
+      <div class="tb-pad-pop" id="tbPadPop" style="display:none;">
+        <div class="tb-pad-title">⬇️ 顶栏高度（状态栏间距）</div>
+        <div class="slider-row" style="align-items:center;gap:8px;">
+          <input type="range" min="0" max="120" id="sTop" oninput="liveTheme()" style="flex:1;">
+          <span id="vTop" style="min-width:44px;text-align:right">48px</span>
+        </div>
+        <div class="small muted">0 = 紧贴状态栏 · 120 = 最大留白，随方案保存</div>
+      </div>
     </div>
     <div class="content" id="content"></div>
   </main>
@@ -629,11 +647,6 @@ body.gradient{background:linear-gradient(135deg,
       <div class="toggle-row">圆角大小
         <input type="range" min="8" max="28" id="sRad" oninput="liveTheme()" style="width:120px">
       </div>
-      <div class="toggle-row mt">⬇️ 顶栏高度（状态栏间距）
-        <input type="range" min="0" max="120" id="sTop" oninput="liveTheme()" style="width:120px">
-        <span id="vTop" style="min-width:42px;text-align:right">48px</span>
-      </div>
-      <div class="small muted">拖动调节顶栏与系统状态栏 / 顶部的距离：0 = 紧贴，120 = 最大留白。会随方案一起保存，适配不同屏幕。</div>
     </div>
 
     <!-- 自定义背景（图片/视频） -->
@@ -960,6 +973,16 @@ function navItem(id,ic,name){
 /* ============== Navigation ============== */
 function appTitle(){ return (store.profile&&store.profile.name?store.profile.name:"小凪")+"工作台"; }
 function toggleSidebar(){ document.body.classList.toggle("sb-collapsed"); }
+function toggleTopbarPadPop(){
+  const el=document.getElementById("tbPadPop");if(!el)return;
+  const show=el.style.display==="none";
+  el.style.display=show?"block":"none";
+  if(show){
+    const def=(store.layout&&store.layout.topbarPad!==undefined)?store.layout.topbarPad:48;
+    const sTop=document.getElementById("sTop");if(sTop)sTop.value=def;
+    const vT=document.getElementById("vTop");if(vT)vT.textContent=def+"px";
+  }
+}
 function go(id){
   current=id;
   if(id==="home"){document.getElementById("tbIcon").textContent="🌱";document.getElementById("tbName").textContent=appTitle();document.getElementById("tbSub").textContent="身心成长 · 拒绝内耗";}
