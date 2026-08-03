@@ -146,13 +146,12 @@ body.sb-collapsed .sidebar{position:absolute;top:0;bottom:0;left:0;transform:tra
 .main{flex:1;display:flex;flex-direction:column;min-width:0;}
 .topbar{
   display:flex;align-items:center;gap:10px;
-  /* 让出系统状态栏高度（PWA 独立窗口时 env 返回非零，普通浏览器返回 0） */
-  padding:18px 18px 12px;
+  /* 顶栏顶部间距改为可调变量（由滑块控制，默认48px让出状态栏） */
+  padding:var(--topbar-pad,48px) 18px 12px;
   background:var(--card);border-bottom:1px solid var(--line);box-shadow:var(--shadow);
   /* 确保顶栏永远不透明，不受背景色影响 */
   isolation:isolate;
 }
-.pwa .topbar{padding-top:calc(env(safe-area-inset-top, 28px) + 16px);}
 .tb-title{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;flex:0 0 auto;}
 .tb-title .sub{font-weight:400;font-size:11px;color:var(--muted);}
 .clock{font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;color:var(--accent);
@@ -443,8 +442,8 @@ body.gradient{background:linear-gradient(135deg,
   .content{padding:10px;}
   .home-hero{grid-template-columns:1fr;}
   .stat-grid{grid-template-columns:repeat(2,1fr);}
-  /* 顶栏紧凑 + 硬让出状态栏高度（不依赖 env，WebView APK 可能不返值） */
-  .topbar{padding:48px 10px 12px;gap:6px;flex-wrap:wrap;min-height:64px;}
+  /* 顶栏紧凑 + 顶部间距用可调变量（不依赖 env，WebView APK 可能不返值） */
+  .topbar{padding:var(--topbar-pad,48px) 10px 12px;gap:6px;flex-wrap:wrap;min-height:56px;}
   .tb-title{font-size:14px;}
   .chip{font-size:11px;padding:5px 9px;}
   /* 卡片内间距缩小 */
@@ -630,6 +629,11 @@ body.gradient{background:linear-gradient(135deg,
       <div class="toggle-row">圆角大小
         <input type="range" min="8" max="28" id="sRad" oninput="liveTheme()" style="width:120px">
       </div>
+      <div class="toggle-row mt">⬇️ 顶栏高度（状态栏间距）
+        <input type="range" min="0" max="120" id="sTop" oninput="liveTheme()" style="width:120px">
+        <span id="vTop" style="min-width:42px;text-align:right">48px</span>
+      </div>
+      <div class="small muted">拖动调节顶栏与系统状态栏 / 顶部的距离：0 = 紧贴，120 = 最大留白。会随方案一起保存，适配不同屏幕。</div>
     </div>
 
     <!-- 自定义背景（图片/视频） -->
@@ -841,6 +845,8 @@ function migrate(){
   if(!store.catSeq) store.catSeq=1;
   store.profile=store.profile||{name:"",avatar:""};
   store.bgMedia=store.bgMedia||null;
+  store.layout=store.layout||{};
+  if(store.layout.topbarPad===undefined)store.layout.topbarPad=48;
 }
 migrate();
 let current="home";
@@ -914,6 +920,12 @@ function applyTheme(){
   const mc=document.querySelector('meta[name=theme-color]');if(mc)mc.setAttribute("content",`hsl(${t.aHue} ${t.aSat}% ${t.aLight}%)`);
   // update color wheel previews
   updateCWPreviews();
+  // 顶栏高度（状态栏间距）可调
+  applyLayout();
+}
+function applyLayout(){
+  const pad=store.layout&&store.layout.topbarPad!==undefined?store.layout.topbarPad:48;
+  document.documentElement.style.setProperty("--topbar-pad",pad+"px");
 }
 function toggleSwitch(id,key){
   const e=document.getElementById(id);if(!e)return;
@@ -1778,6 +1790,11 @@ function liveTheme(){
   t.rad=+document.getElementById("sRad").value;
   t.blur=+document.getElementById("sBlur").value;
   const vB=document.getElementById("vBlur");if(vB)vB.textContent=(t.blur)+"%";
+  // 顶栏高度滑块
+  store.layout=store.layout||{};
+  store.layout.topbarPad=+document.getElementById("sTop").value;
+  const vT=document.getElementById("vTop");if(vT)vT.textContent=store.layout.topbarPad+"px";
+  applyLayout();
   // update labels
   setNum("cwBgHV",t.hue);setNum("cwBgSV",t.sat);setNum("cwBgLV",t.light);
   setNum("cwCardHV",t.cHue);setNum("cwCardSV",t.cSat);setNum("cwCardLV",t.cLight);
@@ -1807,6 +1824,10 @@ function syncThemeUI(){
   tog("tGrad",t.grad);tog("tDark",t.dark);
   set("sRad",t.rad);
   set("sBlur",t.blur||60);const vB=document.getElementById("vBlur");if(vB)vB.textContent=(t.blur||60)+"%";
+  // 顶栏高度滑块回填
+  const defTop=(store.layout&&store.layout.topbarPad!==undefined)?store.layout.topbarPad:48;
+  const sTop=document.getElementById("sTop");if(sTop)sTop.value=defTop;
+  const vT=document.getElementById("vTop");if(vT)vT.textContent=defTop+"px";
   const sDot=document.getElementById("sDot");if(sDot){sDot.value=t.dotAlpha||50;const v=document.getElementById("vDot");if(v)v.textContent=t.dotAlpha||50;}
   // texture buttons
   document.querySelectorAll(".texture-btn").forEach(b=>b.classList.toggle("on",b.dataset.tex===(t.texture||"none")));
