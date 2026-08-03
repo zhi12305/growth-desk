@@ -431,6 +431,10 @@ body.gradient{background:linear-gradient(135deg,
   .sidebar{width:60px;flex:0 0 60px;padding:10px 3px;gap:4px;}
   .nav-item{font-size:9px;padding:8px 2px;} .nav-item .ic{font-size:16px;}
   .nav-item .nm{display:none;} /* 小屏隐藏文字只留图标 */
+  /* 侧栏顶部头像小卡：横→纵，避免 60px 宽被挤变形 */
+  .side-profile{flex-direction:column;align-items:center;gap:5px;padding:10px 2px;margin-bottom:12px;}
+  .side-av-wrap{width:32px;height:32px;}
+  .side-name{font-size:11px;text-align:center;max-width:100%;}
   .logo{font-size:20px!important;}
   /* 主内容区 */
   .content{padding:10px;}
