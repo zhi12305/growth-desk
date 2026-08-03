@@ -61,8 +61,8 @@ body.glass:not(.glass-matte) .stat,
 body.glass:not(.glass-matte) .quote-box,
 body.glass:not(.glass-matte) .mood{
   background:hsl(var(--c-hue) var(--c-sat)% var(--c-light)% / .93)!important;
-  backdrop-filter:blur(18px) saturate(160%)!important;
-  -webkit-backdrop-filter:blur(18px) saturate(160%)!important;
+  backdrop-filter:blur(var(--glass-blur,18px)) saturate(160%)!important;
+  -webkit-backdrop-filter:blur(var(--glass-blur,18px)) saturate(160%)!important;
 }
 /* ===== 磨砂玻璃（frosted/matte glass）—— 噪点纹理 + 半透明，不模糊 ===== */
 body.glass.glass-matte .card,
@@ -112,6 +112,10 @@ body.dark.glass.glass-matte .cat-mini,body.dark.glass.glass-matte .task,body.dar
 }
 .app{display:flex;height:100%;}
 
+/* 自定义背景媒体层（图片/视频铺满，置于内容之下） */
+.bg-media{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:transparent;}
+.bg-media>img,.bg-media>video{width:100%;height:100%;object-fit:cover;display:block;}
+
 /* ---------- Sidebar ---------- */
 .sidebar{
   width:94px; flex:0 0 94px; background:var(--card);
@@ -138,9 +142,6 @@ body.dark.glass.glass-matte .cat-mini,body.dark.glass.glass-matte .task,body.dar
 body.sb-collapsed .sidebar{position:absolute;top:0;bottom:0;left:0;transform:translateX(-105%);box-shadow:none;z-index:40;}
 .hamburger{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:none;background:transparent;color:var(--text);font-size:20px;border-radius:10px;cursor:pointer;flex:0 0 auto;}
 .hamburger:hover{background:var(--accent-soft);}
-.sb-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:35;}
-@media(max-width:900px){ body:not(.sb-collapsed) .sb-backdrop{display:block;} }
-
 /* ---------- Main ---------- */
 .main{flex:1;display:flex;flex-direction:column;min-width:0;}
 .topbar{
@@ -500,9 +501,9 @@ body.gradient{background:linear-gradient(135deg,
 </style>
 </head>
 <body>
+<div class="bg-media" id="bgMedia"></div>
 <div class="app">
   <aside class="sidebar" id="sidebar"></aside>
-  <div class="sb-backdrop" onclick="toggleSidebar()"></div>
   <main class="main">
     <div class="topbar">
       <button class="hamburger" onclick="toggleSidebar()" title="收起 / 展开侧边栏">☰</button>
@@ -616,10 +617,24 @@ body.gradient{background:linear-gradient(135deg,
         <button class="chip glass-mode-btn on" data-glass="off" onclick="setGlassMode('off')">无</button>
         <button class="chip glass-mode-btn" data-glass="frosted" onclick="setGlassMode('frosted')">毛玻璃（柔光模糊）</button>
       </div>
+      <div class="slider-row mt"><span>毛玻璃模糊程度</span><input type="range" min="0" max="100" id="sBlur" oninput="liveTheme()"><span id="vBlur">60%</span></div>
+      <div class="small muted">0% = 完全不模糊 · 100% = 最强柔化（仅「毛玻璃」模式下生效）</div>
       <div class="toggle-row mt">深色模式 <button class="switch" id="tDark" onclick="toggleSwitch('tDark','dark')"></button></div>
       <div class="toggle-row">圆角大小
         <input type="range" min="8" max="28" id="sRad" oninput="liveTheme()" style="width:120px">
       </div>
+    </div>
+
+    <!-- 自定义背景（图片/视频） -->
+    <div class="mt card" style="padding:14px;">
+      <div style="font-weight:600;font-size:14px;margin-bottom:6px;">🖼️ 自定义背景（图片 / 视频）</div>
+      <div class="small muted mb">上传图片或视频作为整个工作台背景，自动铺满全屏。若已开启「渐变」或「背景肌理」，建议先关闭它们，否则自定义背景会被盖住。</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center;">
+        <label class="btn sm" style="cursor:pointer;">📷 上传图片<input type="file" accept="image/*" hidden onchange="uploadBgMedia(this,'image')"></label>
+        <label class="btn sm" style="cursor:pointer;">🎬 上传视频<input type="file" accept="video/*" hidden onchange="uploadBgMedia(this,'video')"></label>
+        <button class="btn soft sm" onclick="clearBgMedia()">清除背景</button>
+      </div>
+      <div id="bgMediaPreview" class="small muted mt"></div>
     </div>
 
     <div class="row mt modal-body-collapsible" style="justify-content:flex-end">
@@ -699,7 +714,7 @@ body.gradient{background:linear-gradient(135deg,
 /* ============== Data layer ============== */
 const KEY="growth_desk_v1";
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
-function save(){store.syncedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(store));if(CLOUD_ON)cloudPush();}
+function save(){store.syncedAt=new Date().toISOString();try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){console.warn("本地存储写入失败（媒体文件可能过大）:",e);}if(CLOUD_ON)cloudPush();}
 let store=load();
 
 /* ============== Cloud sync (Supabase) ============== */
@@ -815,9 +830,10 @@ function migrate(){
   store.cats.forEach(c=>{if(c.presets===undefined)c.presets=[];});
   store.data=store.data||{};
   store.mode=store.mode||"daily";
-  store.theme=store.theme||{hue:105,sat:22,light:94,cHue:105,cSat:18,cLight:96,aHue:112,aSat:38,aLight:42,op:100,glass:false,glassMode:"off",grad:false,dark:false,rad:18,texture:"none",gradDir:"",gradMode:"linear",dotAlpha:50};
+  store.theme=store.theme||{hue:105,sat:22,light:94,cHue:105,cSat:18,cLight:96,aHue:112,aSat:38,aLight:42,op:100,glass:false,glassMode:"off",grad:false,dark:false,rad:18,texture:"none",gradDir:"",gradMode:"linear",dotAlpha:50,blur:60};
   if(!store.catSeq) store.catSeq=1;
   store.profile=store.profile||{name:"",avatar:""};
+  store.bgMedia=store.bgMedia||null;
 }
 migrate();
 let current="home";
@@ -831,7 +847,7 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function catById(id){return store.cats.find(c=>c.id===id);}
 function getTheme(){
   const t=store.theme;
-  return {hue:t.hue,sat:t.sat,light:t.light,cHue:t.cHue||105,cSat:t.cSat||18,cLight:t.cLight||96,aHue:t.aHue,aSat:t.aSat,aLight:t.aLight,grad:t.grad,glass:t.glass,glassMode:t.glassMode||"off",dark:t.dark,rad:t.rad,op:t.op/100,texture:t.texture||"none",gradDir:t.gradDir||"",gradMode:t.gradMode||"linear",dotAlpha:t.dotAlpha||50};
+  return {hue:t.hue,sat:t.sat,light:t.light,cHue:t.cHue||105,cSat:t.cSat||18,cLight:t.cLight||96,aHue:t.aHue,aSat:t.aSat,aLight:t.aLight,grad:t.grad,glass:t.glass,glassMode:t.glassMode||"off",dark:t.dark,rad:t.rad,op:t.op/100,texture:t.texture||"none",gradDir:t.gradDir||"",gradMode:t.gradMode||"linear",dotAlpha:t.dotAlpha||50,blur:t.blur||60};
 }
 /* HSL -> relative luminance (0..1) */
 function luminance(h,s,l){
@@ -880,6 +896,9 @@ function applyTheme(){
     document.body.classList.add("texture-dots");
   }
   r.setProperty("--on-accent",onColor(t.aHue,t.aSat,t.aLight));
+  // 毛玻璃模糊程度：0%→0px，100%→30px（仅「毛玻璃」模式生效）
+  const blurPx=((t.blur||60)/100*30).toFixed(1);
+  r.setProperty("--glass-blur",blurPx+"px");
   // gradient: simple on/off → diagonal linear
   document.body.classList.toggle("gradient",!!t.grad);
   document.body.classList.toggle("glass",t.glassMode!=="off");
@@ -1685,7 +1704,7 @@ function openTheme(){
   syncThemeUI();applyTheme();
   // init color wheel drag handlers (once)
   if(!window._cwInit){initColorWheels();window._cwInit=true;}
-  openModal("themeModal");
+  openModal("themeModal");updateBgMediaPreview();
 }
 function applyPreset(i){
   const p=PRESETS[i];const t=store.theme;
@@ -1711,6 +1730,8 @@ function liveTheme(){
   t.grad=document.getElementById("tGrad").classList.contains("on");
   t.dark=document.getElementById("tDark").classList.contains("on");
   t.rad=+document.getElementById("sRad").value;
+  t.blur=+document.getElementById("sBlur").value;
+  const vB=document.getElementById("vBlur");if(vB)vB.textContent=(t.blur)+"%";
   // update labels
   setNum("cwBgHV",t.hue);setNum("cwBgSV",t.sat);setNum("cwBgLV",t.light);
   setNum("cwCardHV",t.cHue);setNum("cwCardSV",t.cSat);setNum("cwCardLV",t.cLight);
@@ -1739,6 +1760,7 @@ function syncThemeUI(){
   document.querySelectorAll(".glass-mode-btn").forEach(b=>b.classList.toggle("on",b.dataset.glass===(t.glassMode||"off")));
   tog("tGrad",t.grad);tog("tDark",t.dark);
   set("sRad",t.rad);
+  set("sBlur",t.blur||60);const vB=document.getElementById("vBlur");if(vB)vB.textContent=(t.blur||60)+"%";
   const sDot=document.getElementById("sDot");if(sDot){sDot.value=t.dotAlpha||50;const v=document.getElementById("vDot");if(v)v.textContent=t.dotAlpha||50;}
   // texture buttons
   document.querySelectorAll(".texture-btn").forEach(b=>b.classList.toggle("on",b.dataset.tex===(t.texture||"none")));
@@ -1847,10 +1869,40 @@ function openModal(id){document.getElementById(id).classList.add("show");}
 function closeModal(id){document.getElementById(id).classList.remove("show");}
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("show");}));
 
+/* ============== 自定义背景（图片/视频） ============== */
+function applyBgMedia(){
+  const el=document.getElementById("bgMedia");if(!el)return;
+  const m=store.bgMedia;
+  if(!m||!m.data){el.innerHTML="";return;}
+  if(m.type==="video"){
+    el.innerHTML='<video src="'+m.data+'" autoplay loop muted playsinline></video>';
+  }else{
+    el.innerHTML='<img src="'+m.data+'" alt="">';
+  }
+}
+function uploadBgMedia(input,type){
+  const f=input.files&&input.files[0];if(!f){return;}
+  const done=data=>{
+    if(!data){alert("读取失败，请换一个文件试试");if(input)input.value="";return;}
+    const bytes=Math.round(data.length*0.75);
+    if(bytes>4500000){alert("该文件约 "+(bytes/1048576).toFixed(1)+" MB，超过浏览器本地存储上限（约5MB），无法保存。请使用更短的视频或图片。");if(input)input.value="";return;}
+    store.bgMedia={type:type,data:data};save();applyBgMedia();updateBgMediaPreview();
+    if(input)input.value="";
+  };
+  if(type==="image"){compressImg(f,data=>done(data));}
+  else{const r=new FileReader();r.onload=()=>done(r.result);r.readAsDataURL(f);}
+}
+function clearBgMedia(){store.bgMedia=null;save();applyBgMedia();updateBgMediaPreview();}
+function updateBgMediaPreview(){
+  const el=document.getElementById("bgMediaPreview");if(!el)return;
+  const m=store.bgMedia;
+  el.textContent=m?("当前背景："+(m.type==="video"?"视频":"图片")+"（约 "+Math.round(m.data.length/1024)+" KB）"):"当前未设置自定义背景。";
+}
+
 /* ============== Boot ============== */
 function boot(){
   if(window.innerWidth<=900) document.body.classList.add("sb-collapsed");
-  applyTheme();refreshModeBtn();renderSidebar();renderContent();
+  applyTheme();refreshModeBtn();renderSidebar();renderContent();applyBgMedia();
   if(CLOUD_ON){
     setSyncState("syncing");
     cloudPull().then(changed=>{
