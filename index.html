@@ -133,6 +133,14 @@ body.dark.glass.glass-matte .cat-mini,body.dark.glass.glass-matte .task,body.dar
 .nav-spacer{flex:1;}
 .nav-mini{font-size:18px;}
 
+/* 侧边栏折叠（可收缩抽屉） */
+.sidebar{transition:transform .25s ease;}
+body.sb-collapsed .sidebar{position:absolute;top:0;bottom:0;left:0;transform:translateX(-105%);box-shadow:none;z-index:40;}
+.hamburger{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:none;background:transparent;color:var(--text);font-size:20px;border-radius:10px;cursor:pointer;flex:0 0 auto;}
+.hamburger:hover{background:var(--accent-soft);}
+.sb-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:35;}
+@media(max-width:900px){ body:not(.sb-collapsed) .sb-backdrop{display:block;} }
+
 /* ---------- Main ---------- */
 .main{flex:1;display:flex;flex-direction:column;min-width:0;}
 .topbar{
@@ -279,6 +287,7 @@ body.dark .modal h3,body[class] .modal h3{color:#1a2e1a!important;}
 .modal-ctrls{display:flex;gap:4px;flex-shrink:0;}
 .modal-ctrl{width:26px;height:26px;border-radius:6px;border:1px solid #ccc;background:#f5f5f5!important;color:#555!important;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:.15s;}
 .modal-ctrl:hover{border-color:#999;background:#e8e8e8!important;color:#222!important;}
+.modal-close:hover{border-color:#e36d6d;background:#fbe9e9!important;color:#e36d6d!important;}
 /* 自定义方案保存区 */
 .save-scheme-row{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
 .save-scheme-row input{flex:1;min-width:120px;font-size:13px;}
@@ -476,13 +485,27 @@ body.gradient{background:linear-gradient(135deg,
   .cw-preview{width:36px;height:24px;}
   .cw-num-input{width:36px;height:22px;font-size:11px;}
 }
+/* ============== Profile (我的) ============== */
+.inp{font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg2);color:var(--text);width:100%;box-sizing:border-box;}
+.inp:focus{outline:none;border-color:var(--accent);}
+.side-profile{display:flex;align-items:center;gap:8px;padding:8px 6px;margin:0 2px 6px;border-radius:12px;}
+.side-av-wrap{width:34px;height:34px;border-radius:50%;overflow:hidden;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.side-av-wrap img{width:100%;height:100%;object-fit:cover;}
+.side-av-ic{font-size:18px;}
+.side-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.profile-av-wrap{position:relative;width:120px;height:120px;border-radius:50%;margin:0 auto;overflow:hidden;background:var(--accent-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.profile-av-wrap img{width:100%;height:100%;object-fit:cover;}
+.profile-av-wrap .placeholder{font-size:48px;}
+.av-edit-badge{position:absolute;right:4px;bottom:4px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 6px rgba(0,0,0,.25);}
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar" id="sidebar"></aside>
+  <div class="sb-backdrop" onclick="toggleSidebar()"></div>
   <main class="main">
     <div class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" title="收起 / 展开侧边栏">☰</button>
       <div class="tb-title"><span id="tbIcon">🏠</span><span id="tbName">主页</span>
         <span class="sub" id="tbSub"></span></div>
       <div class="clock" id="clock">--:--</div>
@@ -505,6 +528,7 @@ body.gradient{background:linear-gradient(135deg,
       <div class="modal-ctrls">
         <button class="modal-ctrl" onclick="toggleModalMin('themeModalBox')" title="最小化">−</button>
         <button class="modal-ctrl" onclick="toggleModalMax('themeModalBox')" title="最大化/还原">⤢</button>
+        <button class="modal-ctrl modal-close" onclick="closeModal('themeModal')" title="关闭">✕</button>
       </div>
     </div>
     <div class="small muted mb modal-body-collapsible">三个色环分别控制背景、卡片方块、按钮主色。拖动色环选色相，内方拖动调饱和/明暗。所有调整实时预览。</div>
@@ -793,6 +817,7 @@ function migrate(){
   store.mode=store.mode||"daily";
   store.theme=store.theme||{hue:105,sat:22,light:94,cHue:105,cSat:18,cLight:96,aHue:112,aSat:38,aLight:42,op:100,glass:false,glassMode:"off",grad:false,dark:false,rad:18,texture:"none",gradDir:"",gradMode:"linear",dotAlpha:50};
   if(!store.catSeq) store.catSeq=1;
+  store.profile=store.profile||{name:"",avatar:""};
 }
 migrate();
 let current="home";
@@ -881,8 +906,10 @@ setInterval(tick,1000);tick();
 function renderSidebar(){
   const sb=document.getElementById("sidebar");
   let h=`<div class="logo" onclick="go('home')" style="cursor:pointer" title="主页">🌱</div>`;
+  h+=sideProfile();
   h+=navItem("home","🏠","主页");
   store.cats.forEach(c=>{h+=navItem(c.id,c.icon,c.name);});
+  h+=navItem("me","👤","我的");
   h+=`<div class="nav-spacer"></div>`;
   h+=`<div class="nav-item nav-mini" onclick="openCats()" title="管理分类">⚙️</div>`;
   sb.innerHTML=h;
@@ -893,21 +920,81 @@ function navItem(id,ic,name){
 }
 
 /* ============== Navigation ============== */
+function appTitle(){ return (store.profile&&store.profile.name?store.profile.name:"小凪")+"工作台"; }
+function toggleSidebar(){ document.body.classList.toggle("sb-collapsed"); }
 function go(id){
   current=id;
-  if(id==="home"){document.getElementById("tbIcon").textContent="🏠";document.getElementById("tbName").textContent="主页";document.getElementById("tbSub").textContent="身心成长 · 拒绝内耗";}
+  if(id==="home"){document.getElementById("tbIcon").textContent="🌱";document.getElementById("tbName").textContent=appTitle();document.getElementById("tbSub").textContent="身心成长 · 拒绝内耗";}
+  else if(id==="me"){document.getElementById("tbIcon").textContent="👤";document.getElementById("tbName").textContent="我的";document.getElementById("tbSub").textContent="个人资料";}
   else{const c=catById(id);document.getElementById("tbIcon").textContent=c?c.icon:"📁";document.getElementById("tbName").textContent=c?c.name:"未分类";document.getElementById("tbSub").textContent="";}
   renderSidebar();renderContent();
   document.querySelector(".content").scrollTop=0;
+  if(window.innerWidth<=900) document.body.classList.add("sb-collapsed");
 }
 
 /* ============== Content router ============== */
 function renderContent(){
   const el=document.getElementById("content");
   if(current==="home"){el.innerHTML=renderHome();return;}
+  if(current==="me"){el.innerHTML=renderProfile();return;}
   const c=catById(current);if(!c){el.innerHTML="";return;}
   el.innerHTML=renderCatView(c);
   bindCat(c);
+}
+
+/* ============== Profile (我的) ============== */
+function sideProfile(){
+  const p=store.profile||{};
+  const av=p.avatar?`<img src="${p.avatar}" alt="">`:`<span class="side-av-ic">👤</span>`;
+  return `<div class="side-profile">
+    <div class="side-av-wrap">${av}</div>
+    <div class="side-name">${esc(p.name||"未命名")}</div>
+  </div>`;
+}
+function renderProfile(){
+  const p=store.profile||{};
+  const av=p.avatar?`<img src="${p.avatar}" alt="头像">`:`<div class="placeholder">👤</div>`;
+  return `
+  <div class="page" style="max-width:520px;margin:0 auto;padding:8px">
+    <div class="card" style="text-align:center;padding:26px 20px">
+      <div class="profile-av-wrap" onclick="document.getElementById('avatarFile').click()" title="点击上传头像">
+        ${av}
+        <div class="av-edit-badge">📷</div>
+      </div>
+      <input type="file" id="avatarFile" accept="image/*" style="display:none" onchange="pickAvatar(this)">
+      <div class="small muted mt">点击头像即可上传照片</div>
+      <div class="mt" style="text-align:left">
+        <div class="small muted mb">我的名字</div>
+        <input id="profileName" class="inp" value="${esc(p.name||'')}" placeholder="给自己取一个喜欢的名字">
+      </div>
+      <div class="row mt" style="gap:10px;justify-content:flex-start">
+        <button class="btn" onclick="saveProfile()">💾 保存资料</button>
+        <button class="btn ghost" onclick="go('home')">返回主页</button>
+      </div>
+      <div id="profileMsg" class="small mt" style="color:var(--accent);min-height:16px"></div>
+    </div>
+  </div>`;
+}
+function pickAvatar(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  compressImg(f,data=>{
+    store.profile=store.profile||{};
+    store.profile.avatar=data;
+    save();
+    renderContent();
+    renderSidebar();
+    const m=document.getElementById("profileMsg");if(m)m.textContent="头像已更新 ✓";
+    if(m)setTimeout(()=>{m.textContent="";},1500);
+  });
+}
+function saveProfile(){
+  const inp=document.getElementById("profileName");
+  store.profile=store.profile||{};
+  store.profile.name=(inp?inp.value.trim():"")||"";
+  save();
+  const m=document.getElementById("profileMsg");if(m)m.textContent="已保存 ✓";
+  renderSidebar();
+  if(m)setTimeout(()=>{m.textContent="";},1500);
 }
 
 /* ============== Home ============== */
@@ -1762,6 +1849,7 @@ document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if
 
 /* ============== Boot ============== */
 function boot(){
+  if(window.innerWidth<=900) document.body.classList.add("sb-collapsed");
   applyTheme();refreshModeBtn();renderSidebar();renderContent();
   if(CLOUD_ON){
     setSyncState("syncing");
