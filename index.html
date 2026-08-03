@@ -166,6 +166,13 @@ body.sb-collapsed .sidebar{position:absolute;top:0;bottom:0;left:0;transform:tra
 .dark .tb-pad-pop .tb-pad-title,.dark .tb-pad-pop{color:#1a201a;}
 .tb-pad-title{font-weight:600;font-size:13px;margin-bottom:8px;color:#141414;}
 .tb-pad-pop #vTop{color:#1a201a;font-weight:600;}
+/* 浮层底部操作按钮：关闭 / 确定 */
+.tb-pad-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;}
+.tb-pad-btn2{font-size:12px;padding:7px 14px;border-radius:999px;cursor:pointer;transition:.15s;
+  border:1px solid rgba(20,20,20,.18);background:transparent;color:#333;}
+.tb-pad-btn2:hover{background:rgba(20,20,20,.06);}
+.tb-pad-ok{background:#2f7d4f;border-color:#2f7d4f;color:#fff;}
+.tb-pad-ok:hover{background:#276a43;}
 .tb-pad-btn{white-space:nowrap;}
 .tb-title{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;flex:0 0 auto;}
 .tb-title .sub{font-weight:400;font-size:11px;color:var(--muted);}
@@ -546,6 +553,10 @@ body.gradient{background:linear-gradient(135deg,
           <span id="vTop" style="min-width:44px;text-align:right">48px</span>
         </div>
         <div class="small muted">0 = 紧贴状态栏 · 120 = 最大留白，随方案保存</div>
+        <div class="tb-pad-actions">
+          <button class="tb-pad-btn2" onclick="closeTopbarPadPop()" title="关闭（不保存本次调整）">✕ 关闭</button>
+          <button class="tb-pad-btn2 tb-pad-ok" onclick="confirmTopbarPadPop()" title="确定（保存本次调整）">✓ 确定</button>
+        </div>
       </div>
     </div>
     <div class="content" id="content"></div>
@@ -985,10 +996,28 @@ function toggleTopbarPadPop(){
   const show=el.style.display==="none";
   el.style.display=show?"block":"none";
   if(show){
-    const def=(store.layout&&store.layout.topbarPad!==undefined)?store.layout.topbarPad:48;
+    // 备份打开前的值，供「关闭」时还原
+    window._tbPadBackup=(store.layout&&store.layout.topbarPad!==undefined)?store.layout.topbarPad:48;
+    const def=window._tbPadBackup;
     const sTop=document.getElementById("sTop");if(sTop)sTop.value=def;
     const vT=document.getElementById("vTop");if(vT)vT.textContent=def+"px";
   }
+}
+/* 打叉关闭：还原打开前的值，不保存本次调整 */
+function closeTopbarPadPop(){
+  const el=document.getElementById("tbPadPop");if(!el)return;
+  el.style.display="none";
+  if(window._tbPadBackup!==undefined){
+    store.layout=store.layout||{};
+    store.layout.topbarPad=window._tbPadBackup;
+    applyLayout();
+  }
+}
+/* 确定：保存本次调整并关闭 */
+function confirmTopbarPadPop(){
+  const el=document.getElementById("tbPadPop");if(!el)return;
+  el.style.display="none";
+  save();
 }
 /* 仅更新顶栏高度——不复用 liveTheme()，避免把 color wheel 默认值覆盖到主题色导致整页变色 */
 function liveTopbarPad(){
