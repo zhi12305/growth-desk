@@ -496,7 +496,7 @@ body.gradient{background:linear-gradient(135deg,
 @media(max-width:480px){
   /* 手机：保持左侧竖栏（侧边栏），分类多了可竖向滑动 */
   .app{flex-direction:row;}            /* 关键：不改成 column，保持左栏+主区 */
-  .sidebar{width:74px;flex:0 0 74px;padding:10px 4px;gap:5px;overflow-y:auto;}
+  .sidebar{width:74px;flex:0 0 74px;padding:var(--topbar-pad,48px) 4px 10px;gap:5px;overflow-y:auto;}
   .nav-item{font-size:9.5px;padding:8px 2px;}
   .nav-item .ic{font-size:18px;}
   .nav-item .nm{display:block;font-size:9.5px;line-height:1.15;margin-top:2px;} /* 显示分类名 */
@@ -634,6 +634,11 @@ body.gradient{background:linear-gradient(135deg,
       <div style="font-weight:600;font-size:12.5px;color:#3a4a3a;">💾 保存当前方案：</div>
       <input id="schemeNameInput" placeholder="起个名字…" maxlength="16" style="width:110px;font-size:12.5px;padding:6px 10px;">
       <button class="btn sm" onclick="saveCustomScheme()">保存</button>
+    </div>
+    <!-- 需求2：选了已有方案又改了配色时，动态显示「覆盖保存」按钮 -->
+    <div class="mt" id="updateSchemeWrap" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+      <button id="updateSchemeBtn" class="btn sm" style="background:#2f7d4f;color:#fff;border-color:#2f7d4f;" onclick="updateCurrentScheme()">✓ 保存此方案的修改</button>
+      <span class="small muted" id="updateSchemeHint">你修改了当前方案的配色，点此覆盖保存</span>
     </div>
 
     <!-- Presets row: built-in + custom schemes together -->
@@ -881,6 +886,7 @@ function migrate(){
 }
 migrate();
 let current="home";
+let currentCustomSchemeId=null; // 当前激活的自定义方案 id（用于「修改后保存」追踪）
 
 /* ============== Helpers ============== */
 function pad(n){return n<10?"0"+n:""+n;}
@@ -1832,8 +1838,10 @@ function openTheme(){
   // init color wheel drag handlers (once)
   if(!window._cwInit){initColorWheels();window._cwInit=true;}
   openModal("themeModal");updateBgMediaPreview();
+  checkSchemeDirty();
 }
 function applyPreset(i){
+  currentCustomSchemeId=null; // 选内置预设，不再是某自定义方案的修改态
   const p=PRESETS[i];const t=store.theme;
   Object.assign(t,{hue:p.hue,sat:p.sat,light:p.light,
     cHue:p.cHue||Math.round((p.hue+5)%360),cSat:p.cSat||Math.max(p.sat-6,8),cLight:p.cLight||Math.min(p.light+4,98),
@@ -1871,6 +1879,7 @@ function liveTheme(){
   ["bg","card","accent"].forEach(updateCWHandle);
   updateCWPreviews();
   applyTheme();
+  checkSchemeDirty(); // 配色/参数变化后，检查是否处于「已选方案被修改」状态
 }
 function syncThemeUI(){
   const t=store.theme;
@@ -1945,6 +1954,13 @@ function saveCustomScheme(){
   let name=(nameInput.value||"").trim();
   if(!name){alert("请给方案起个名字");return;}
   name=name.slice(0,16);
+  const arr=getCustomSchemes();
+  // 需求1：重名校验（大小写不敏感）
+  if(arr.some(s=>s.name.toLowerCase()===name.toLowerCase())){
+    alert("方案名称「"+name+"」已存在，请换一个名字");
+    nameInput.focus();
+    return;
+  }
   const t=store.theme;
   const scheme={
     id:uid(),
@@ -1955,11 +1971,11 @@ function saveCustomScheme(){
     glassMode:t.glassMode||"off",grad:!!t.grad,dark:!!t.dark,
     rad:t.rad,op:t.op,texture:t.texture||"none",dotAlpha:t.dotAlpha||50
   };
-  const arr=getCustomSchemes();
   arr.unshift(scheme);
   if(arr.length>12)arr.length=12;
   saveCustomSchemes(arr);
   nameInput.value="";
+  currentCustomSchemeId=null; // 另存为新方案，不再是某方案的修改态
   // 重新渲染预设区（内置+自定义合并）
   const wrap=document.getElementById("swatches");
   if(wrap){
@@ -1967,6 +1983,7 @@ function saveCustomScheme(){
     html+=arr.map(s=>`<div class="swatch-item"><div class="swatch on" style="background:hsl(${s.hue} ${s.sat}% ${s.light}%);border-color:#4a8a4a;box-shadow:0 0 0 3px rgba(46,125,50,.32);position:relative;" onclick="applyCustomScheme('${s.id}')" title="${esc(s.name)}（自定义）"><span style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:#e36d6d;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid #fff;line-height:1;" onclick="event.stopPropagation();deleteCustomScheme('${s.id}')">✕</span></div><div class="swatch-name" style="color:#5a6a5a!important;">${esc(s.name)}</div></div>`).join("");
     wrap.innerHTML=html;
   }
+  checkSchemeDirty();
   // 高亮提示
   const toast=document.createElement("div");
   toast.style.cssText="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#3a5a3a;color:#fff;padding:8px 18px;border-radius:10px;font-size:12px;font-weight:600;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.15);";
@@ -1984,6 +2001,7 @@ function applyCustomScheme(id){
     aHue:s.aHue,aSat:s.aSat,aLight:s.aLight,
     glassMode:s.glassMode||"off",grad:!!s.grad,dark:!!s.dark,
     rad:s.rad,op:s.op,texture:s.texture||"none",dotAlpha:s.dotAlpha||50});
+  currentCustomSchemeId=id; // 记录当前激活的自定义方案
   syncThemeUI();applyTheme();save();
   // 刷新预设高亮
   openTheme(); // 重新渲染整个预设区以更新on状态
@@ -1993,9 +2011,57 @@ function deleteCustomScheme(id,e){
   if(!confirm("确定删除这个自定义方案？"))return;
   let arr=getCustomSchemes();
   arr=arr.filter(x=>x.id!==id);
+  if(id===currentCustomSchemeId)currentCustomSchemeId=null;
   saveCustomSchemes(arr);
   // 刷新预设区
   openTheme();
+}
+/* 需求2：检测当前是否「选了某自定义方案后又改了配色」，决定是否显示保存修改按钮 */
+function checkSchemeDirty(){
+  const wrap=document.getElementById("updateSchemeWrap");
+  if(!wrap)return;
+  if(!currentCustomSchemeId){wrap.style.display="none";return;}
+  const arr=getCustomSchemes();
+  const s=arr.find(x=>x.id===currentCustomSchemeId);
+  if(!s){wrap.style.display="none";return;}
+  const t=store.theme;
+  const dirty=!(t.hue===s.hue&&t.sat===s.sat&&t.light===s.light
+    &&t.cHue===s.cHue&&t.cSat===s.cSat&&t.cLight===s.cLight
+    &&t.aHue===s.aHue&&t.aSat===s.aSat&&t.aLight===s.aLight
+    &&(t.glassMode||"off")===(s.glassMode||"off")&&!!t.grad===!!s.grad&&!!t.dark===!!s.dark
+    &&t.rad===s.rad&&t.op===s.op&&(t.texture||"none")===(s.texture||"none")&&(t.dotAlpha||50)===(s.dotAlpha||50));
+  if(dirty){
+    wrap.style.display="flex";
+    const btn=document.getElementById("updateSchemeBtn");
+    if(btn)btn.textContent="✓ 保存「"+s.name+"」的修改";
+    const hint=document.getElementById("updateSchemeHint");
+    if(hint)hint.textContent="你修改了当前方案的配色，点此覆盖保存";
+  }else{
+    wrap.style.display="none";
+  }
+}
+/* 需求2：把当前配色写回当前激活的自定义方案（覆盖保存） */
+function updateCurrentScheme(){
+  if(!currentCustomSchemeId)return;
+  const arr=getCustomSchemes();
+  const idx=arr.findIndex(x=>x.id===currentCustomSchemeId);
+  if(idx<0)return;
+  const t=store.theme;
+  const s=arr[idx];
+  Object.assign(s,{hue:t.hue,sat:t.sat,light:t.light,
+    cHue:t.cHue,cSat:t.cSat,cLight:t.cLight,
+    aHue:t.aHue,aSat:t.aSat,aLight:t.aLight,
+    glassMode:t.glassMode||"off",grad:!!t.grad,dark:!!t.dark,
+    rad:t.rad,op:t.op,texture:t.texture||"none",dotAlpha:t.dotAlpha||50});
+  saveCustomSchemes(arr);
+  save();
+  checkSchemeDirty(); // 现在与方案一致，按钮自动隐藏
+  // toast 提示
+  const toast=document.createElement("div");
+  toast.style.cssText="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#3a5a3a;color:#fff;padding:8px 18px;border-radius:10px;font-size:12px;font-weight:600;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.15);";
+  toast.textContent="✅ 已更新方案「"+s.name+"」";
+  document.body.appendChild(toast);
+  setTimeout(()=>{toast.style.opacity="0";toast.style.transition="opacity .3s";setTimeout(()=>toast.remove(),300);},1500);
 }
 
 /* ============== Utils ============== */
