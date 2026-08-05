@@ -166,6 +166,8 @@ body.sb-collapsed .sidebar{position:absolute;top:0;bottom:0;left:0;transform:tra
 .dark .tb-pad-pop .tb-pad-title,.dark .tb-pad-pop{color:#1a201a;}
 .tb-pad-title{font-weight:600;font-size:13px;margin-bottom:8px;color:#141414;}
 .tb-pad-pop #vTop{color:#1a201a;font-weight:600;}
+/* 浮层内说明文字固定深色——白底卡片，不能跟随主页 --muted（按主页背景亮度切换，碰上亮背景会变得很淡） */
+.tb-pad-pop .small,.tb-pad-pop .muted{color:#4a5a4a!important;}
 /* 浮层底部操作按钮：关闭 / 确定 */
 .tb-pad-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;}
 .tb-pad-btn2{font-size:12px;padding:7px 14px;border-radius:999px;cursor:pointer;transition:.15s;
@@ -345,6 +347,9 @@ body.dark .modal-box .card,body[class] .modal-box .card{background:#f8faf6!impor
 .swatch:hover{transform:scale(1.06);}
 .swatch.on{border-color:#2e7d32;box-shadow:0 0 0 3px rgba(46,125,50,.32),0 2px 8px rgba(0,0,0,.18);}
 .swatch-name{font-size:10px;color:#5a6a5a!important;text-align:center;line-height:1.15;max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* 每个自定义方案下方：选中并改色后浮现的「更新覆盖」小按钮 */
+.scheme-update-btn{margin-top:2px;width:100%;max-width:64px;font-size:9.5px;line-height:1.3;padding:4px 2px;border:1.5px dashed #2f7d4f;background:rgba(47,125,79,.12);color:#2f7d4f;border-radius:7px;cursor:pointer;font-weight:600;white-space:nowrap;}
+.scheme-update-btn:hover{background:#2f7d4f;color:#fff;border-style:solid;}
 body.dark .swatch{border-color:rgba(160,170,160,.5);}
 body.dark .swatch.on{border-color:#4a8a4a;box-shadow:0 0 0 3px rgba(74,138,74,.25),0 2px 8px rgba(0,0,0,.2);}
 .slider-row{display:grid;grid-template-columns:70px 1fr 42px;gap:10px;align-items:center;margin:10px 0;font-size:13px;}
@@ -635,12 +640,6 @@ body.gradient{background:linear-gradient(135deg,
       <input id="schemeNameInput" placeholder="起个名字…" maxlength="16" style="width:110px;font-size:12.5px;padding:6px 10px;">
       <button class="btn sm" onclick="saveCustomScheme()">保存</button>
     </div>
-    <!-- 需求2：选了已有方案又改了配色时，动态显示「覆盖保存」按钮 -->
-    <div class="mt" id="updateSchemeWrap" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
-      <button id="updateSchemeBtn" class="btn sm" style="background:#2f7d4f;color:#fff;border-color:#2f7d4f;" onclick="updateCurrentScheme()">✓ 保存此方案的修改</button>
-      <span class="small muted" id="updateSchemeHint">你修改了当前方案的配色，点此覆盖保存</span>
-    </div>
-
     <!-- Presets row: built-in + custom schemes together -->
     <div class="mt">
       <div class="small muted mb">快捷预设（点击即用）</div>
@@ -1631,7 +1630,7 @@ function cwSetHue(target,h){
   if(target==="bg"){t.hue=h;document.getElementById("cwBgH").value=h;setNum("cwBgHV",h);}
   else if(target==="card"){t.cHue=h;document.getElementById("cwCardH").value=h;setNum("cwCardHV",h);}
   else{t.aHue=h;document.getElementById("cwAccentH").value=h;setNum("cwAccentHV",h);}
-  save();updateCWHandle(target);applyTheme();
+  save();updateCWHandle(target);applyTheme();checkSchemeDirty();
 }
 
 function cwSetS(target,s){
@@ -1641,7 +1640,7 @@ function cwSetS(target,s){
   if(target==="bg"){t.sat=sVal;document.getElementById("cwBgS").value=sVal;setNum("cwBgSV",sVal);}
   else if(target==="card"){t.cSat=sVal;document.getElementById("cwCardS").value=sVal;setNum("cwCardSV",sVal);}
   else{t.aSat=sVal;document.getElementById("cwAccentS").value=sVal;setNum("cwAccentSV",sVal);}
-  save();updateCWHandle(target);applyTheme();
+  save();updateCWHandle(target);applyTheme();checkSchemeDirty();
 }
 
 function cwSetV(target,v){
@@ -1651,7 +1650,7 @@ function cwSetV(target,v){
   if(target==="bg"){t.light=vVal;document.getElementById("cwBgL").value=vVal;setNum("cwBgLV",vVal);}
   else if(target==="card"){t.cLight=vVal;document.getElementById("cwCardL").value=vVal;setNum("cwCardLV",vVal);}
   else{t.aLight=vVal;document.getElementById("cwAccentL").value=vVal;setNum("cwAccentLV",vVal);}
-  save();updateCWHandle(target);applyTheme();
+  save();updateCWHandle(target);applyTheme();checkSchemeDirty();
 }
 
 /* ===== 从输入控件触发更新 ===== */
@@ -1690,7 +1689,7 @@ function cwFromSliders(target){
     t.aLight=+document.getElementById("cwAccentL").value;
     setNum("cwAccentHV",t.aHue);setNum("cwAccentSV",t.aSat);setNum("cwAccentLV",t.aLight);
   }
-  save();updateCWHandle(target);applyTheme();
+  save();updateCWHandle(target);applyTheme();checkSchemeDirty();
 }
 
 function cwAdj(target,channel,step){
@@ -1809,8 +1808,9 @@ function matchPreset(i){
   const t=store.theme,p=PRESETS[i];
   return t.hue===p.hue&&t.sat===p.sat&&t.light===p.light&&t.aHue===p.aHue&&t.aSat===p.aSat&&t.aLight===p.aLight&&!!t.glass===!!p.glass&&!!t.dark===!!p.dark;
 }
-function openTheme(){
+function renderSwatches(){
   const wrap=document.getElementById("swatches");
+  if(!wrap)return;
   // 内置预设
   let html=PRESETS.map((p,i)=>`<div class="swatch-item"><div class="swatch ${matchPreset(i)?'on':''}" style="background:hsl(${p.hue} ${p.sat}% ${p.light}%)" onclick="applyPreset(${i})" title="${p.name}"></div><div class="swatch-name">${p.name}</div></div>`).join("");
   // 自定义方案（跟在后面，同样圆形色块样式）
@@ -1830,10 +1830,14 @@ function openTheme(){
           <span style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:#e36d6d;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid #fff;line-height:1;" onclick="event.stopPropagation();deleteCustomScheme('${s.id}')">✕</span>
         </div>
         <div class="swatch-name" style="color:#5a6a5a!important;">${esc(s.name)}</div>
+        <button id="updateBtn_${s.id}" class="scheme-update-btn" style="display:none;" onclick="updateCurrentScheme()" title="把当前三个色环颜色覆盖保存到「${esc(s.name)}」">↻ 更新覆盖</button>
       </div>`;
     }).join("");
   }
   wrap.innerHTML=html;
+}
+function openTheme(){
+  renderSwatches();
   syncThemeUI();applyTheme();
   // init color wheel drag handlers (once)
   if(!window._cwInit){initColorWheels();window._cwInit=true;}
@@ -1849,8 +1853,8 @@ function applyPreset(i){
   if(p.op)t.op=p.op; else if(t.op===undefined)t.op=100;
   syncThemeUI();
   applyTheme();
-  const sw=document.querySelectorAll('#swatches .swatch');
-  sw.forEach((e,j)=>e.classList.toggle('on',j===i));
+  renderSwatches();
+  checkSchemeDirty();
 }
 function liveTheme(){
   const t=store.theme;
@@ -1879,6 +1883,8 @@ function liveTheme(){
   ["bg","card","accent"].forEach(updateCWHandle);
   updateCWPreviews();
   applyTheme();
+  // 自由调整时去掉所有 swatch 高亮圈（store.theme 现在不匹配任何预设，避免双圈残留）
+  document.querySelectorAll('#swatches .swatch').forEach(e=>e.classList.remove('on'));
   checkSchemeDirty(); // 配色/参数变化后，检查是否处于「已选方案被修改」状态
 }
 function syncThemeUI(){
@@ -1976,13 +1982,7 @@ function saveCustomScheme(){
   saveCustomSchemes(arr);
   nameInput.value="";
   currentCustomSchemeId=null; // 另存为新方案，不再是某方案的修改态
-  // 重新渲染预设区（内置+自定义合并）
-  const wrap=document.getElementById("swatches");
-  if(wrap){
-    let html=PRESETS.map((p,i)=>`<div class="swatch-item"><div class="swatch ${matchPreset(i)?'on':''}" style="background:hsl(${p.hue} ${p.sat}% ${p.light}%)" onclick="applyPreset(${i})" title="${p.name}"></div><div class="swatch-name">${p.name}</div></div>`).join("");
-    html+=arr.map(s=>`<div class="swatch-item"><div class="swatch on" style="background:hsl(${s.hue} ${s.sat}% ${s.light}%);border-color:#4a8a4a;box-shadow:0 0 0 3px rgba(46,125,50,.32);position:relative;" onclick="applyCustomScheme('${s.id}')" title="${esc(s.name)}（自定义）"><span style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:#e36d6d;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid #fff;line-height:1;" onclick="event.stopPropagation();deleteCustomScheme('${s.id}')">✕</span></div><div class="swatch-name" style="color:#5a6a5a!important;">${esc(s.name)}</div></div>`).join("");
-    wrap.innerHTML=html;
-  }
+  renderSwatches(); // 重新渲染预设区（内置+自定义合并，含更新按钮占位）
   checkSchemeDirty();
   // 高亮提示
   const toast=document.createElement("div");
@@ -2003,8 +2003,8 @@ function applyCustomScheme(id){
     rad:s.rad,op:s.op,texture:s.texture||"none",dotAlpha:s.dotAlpha||50});
   currentCustomSchemeId=id; // 记录当前激活的自定义方案
   syncThemeUI();applyTheme();save();
-  // 刷新预设高亮
-  openTheme(); // 重新渲染整个预设区以更新on状态
+  renderSwatches(); // 只重渲染 swatches，不重新弹出弹窗
+  checkSchemeDirty();
 }
 function deleteCustomScheme(id,e){
   if(e)e.stopPropagation();
@@ -2016,14 +2016,15 @@ function deleteCustomScheme(id,e){
   // 刷新预设区
   openTheme();
 }
-/* 需求2：检测当前是否「选了某自定义方案后又改了配色」，决定是否显示保存修改按钮 */
+/* 需求2：检测当前是否「选了某自定义方案后又改了配色」，在该方案色块下方显示「更新覆盖」按钮 */
 function checkSchemeDirty(){
-  const wrap=document.getElementById("updateSchemeWrap");
-  if(!wrap)return;
-  if(!currentCustomSchemeId){wrap.style.display="none";return;}
+  // 先隐藏所有方案自带的更新按钮
+  const all=document.querySelectorAll('#swatches .scheme-update-btn');
+  all.forEach(b=>b.style.display='none');
+  if(!currentCustomSchemeId)return;
   const arr=getCustomSchemes();
   const s=arr.find(x=>x.id===currentCustomSchemeId);
-  if(!s){wrap.style.display="none";return;}
+  if(!s)return;
   const t=store.theme;
   const dirty=!(t.hue===s.hue&&t.sat===s.sat&&t.light===s.light
     &&t.cHue===s.cHue&&t.cSat===s.cSat&&t.cLight===s.cLight
@@ -2031,13 +2032,8 @@ function checkSchemeDirty(){
     &&(t.glassMode||"off")===(s.glassMode||"off")&&!!t.grad===!!s.grad&&!!t.dark===!!s.dark
     &&t.rad===s.rad&&t.op===s.op&&(t.texture||"none")===(s.texture||"none")&&(t.dotAlpha||50)===(s.dotAlpha||50));
   if(dirty){
-    wrap.style.display="flex";
-    const btn=document.getElementById("updateSchemeBtn");
-    if(btn)btn.textContent="✓ 保存「"+s.name+"」的修改";
-    const hint=document.getElementById("updateSchemeHint");
-    if(hint)hint.textContent="你修改了当前方案的配色，点此覆盖保存";
-  }else{
-    wrap.style.display="none";
+    const btn=document.getElementById("updateBtn_"+currentCustomSchemeId);
+    if(btn)btn.style.display="block";
   }
 }
 /* 需求2：把当前配色写回当前激活的自定义方案（覆盖保存） */
@@ -2055,6 +2051,7 @@ function updateCurrentScheme(){
     rad:t.rad,op:t.op,texture:t.texture||"none",dotAlpha:t.dotAlpha||50});
   saveCustomSchemes(arr);
   save();
+  renderSwatches(); // 刷新色块（新配色已写入），并让更新按钮回到隐藏态
   checkSchemeDirty(); // 现在与方案一致，按钮自动隐藏
   // toast 提示
   const toast=document.createElement("div");
@@ -2066,7 +2063,70 @@ function updateCurrentScheme(){
 
 /* ============== Utils ============== */
 function esc(s){return (s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
-function compressImg(file,cb){const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const max=640;let w=img.width,h=img.height;if(w>max){h=Math.round(h*w/max);w=max;}if(h>max){w=Math.round(w*h/max);h=max;}c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);try{cb(c.toDataURL("image/jpeg",0.72));}catch(e){cb("");}};img.src=r.result;};r.readAsDataURL(file);}
+function compressImg(file,cb,maxDim){
+  maxDim=maxDim||1080; // 提高上限，手机高清屏更清晰（仍远低于本地存储上限）
+  // 读取 JPEG EXIF Orientation，避免手机竖拍照片被画布旋转成横/倒
+  function getOrientation(buf){
+    try{
+      const v=new DataView(buf);
+      if(v.getUint16(0)!==0xFFD8)return 1;
+      let off=2;const len=buf.byteLength;
+      while(off+4<len){
+        const marker=v.getUint16(off);
+        if((marker&0xFF00)!==0xFF00)break;
+        if(marker===0xFFE1){
+          const start=off+4;
+          if(v.getUint32(start)===0x45786966){ // "Exif"
+            const tiff=start+6;
+            const le=v.getUint16(tiff)===0x4949;
+            const ifd=tiff+(le?v.getUint32(tiff+4,true):v.getUint32(tiff+4));
+            const tags=v.getUint16(ifd,le);
+            for(let i=0;i<tags;i++){
+              const p=ifd+2+i*12;
+              if(v.getUint16(p,le)===0x0112)return v.getUint16(p+8,le);
+            }
+          }
+          return 1;
+        }
+        if(marker===0xFFDA)break; // 图像数据开始
+        off+=2+v.getUint16(off+2);
+      }
+    }catch(e){}
+    return 1;
+  }
+  const fr=new FileReader();
+  fr.onload=()=>{
+    const buf=fr.result;
+    const orient=getOrientation(buf);
+    const url=URL.createObjectURL(new Blob([buf],{type:file.type||"image/jpeg"}));
+    const img=new Image();
+    img.onload=()=>{
+      const rot90=(orient===6||orient===8||orient===5||orient===7);
+      let w=img.width,h=img.height;
+      if(w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}
+      if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}
+      const cw=rot90?h:w, ch=rot90?w:h; // 旋转后画布尺寸
+      const c=document.createElement("canvas");c.width=cw;c.height=ch;
+      const ctx=c.getContext("2d");
+      ctx.save();ctx.translate(cw/2,ch/2);
+      if(orient===2)ctx.transform(-1,0,0,1,0,0);
+      else if(orient===3)ctx.rotate(Math.PI);
+      else if(orient===4)ctx.transform(1,0,0,-1,0,0);
+      else if(orient===5){ctx.rotate(Math.PI/2);ctx.transform(-1,0,0,1,0,0);}
+      else if(orient===6)ctx.rotate(Math.PI/2);
+      else if(orient===7){ctx.rotate(Math.PI/2);ctx.transform(1,0,0,-1,0,0);}
+      else if(orient===8)ctx.rotate(-Math.PI/2);
+      ctx.drawImage(img,-w/2,-h/2,w,h);
+      ctx.restore();
+      URL.revokeObjectURL(url);
+      try{cb(c.toDataURL("image/jpeg",0.78));}catch(e){cb("");}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);cb("");};
+    img.src=url;
+  };
+  fr.onerror=()=>cb("");
+  fr.readAsArrayBuffer(file);
+}
 function openModal(id){document.getElementById(id).classList.add("show");}
 function closeModal(id){document.getElementById(id).classList.remove("show");}
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("show");}));
@@ -2085,7 +2145,17 @@ function applyBgMedia(){
 function uploadBgMedia(input,type){
   const f=input.files&&input.files[0];if(!f){return;}
   const done=data=>{
-    if(!data){alert("读取失败，请换一个文件试试");if(input)input.value="";return;}
+    if(!data){
+      const t=(f.type||"").toLowerCase(), nm=(f.name||"").toLowerCase();
+      if(t==="image/heic"||t==="image/heif"||nm.endsWith(".heic")||nm.endsWith(".heif")){
+        alert("该照片是 HEIC 格式（iPhone 默认拍照格式），当前浏览器无法解码。\n解决：iPhone 设置 → 相机 → 格式 → 选「兼容性最佳」（即 JPEG）后重拍，再上传。");
+      }else if(t==="image/avif"||nm.endsWith(".avif")){
+        alert("该照片是 AVIF 格式，部分浏览器不识别。请改用 JPEG 或 PNG 后重试。");
+      }else{
+        alert("读取失败：该图片可能已损坏，或浏览器不支持此格式。请换一张 JPEG/PNG 照片试试。");
+      }
+      if(input)input.value="";return;
+    }
     const bytes=Math.round(data.length*0.75);
     if(bytes>4500000){alert("该文件约 "+(bytes/1048576).toFixed(1)+" MB，超过浏览器本地存储上限（约5MB），无法保存。请使用更短的视频或图片。");if(input)input.value="";return;}
     store.bgMedia={type:type,data:data};save();applyBgMedia();updateBgMediaPreview();
