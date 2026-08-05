@@ -218,6 +218,58 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 
 .btn.danger{background:#e36d6d;color:#fff;}
 .btn.sm{padding:6px 11px;font-size:12px;border-radius:10px;}
 
+/* ============== 计时器（运动健身分类下：正计时 / 倒计时） ============== */
+.timer-box{margin-top:14px;padding:14px 12px 12px;border-radius:14px;
+  background:rgba(47,125,79,.07);border:1px solid rgba(47,125,79,.20);
+  display:flex;flex-direction:column;gap:12px;}
+.timer-modes{display:flex;gap:8px;}
+.timer-mode{flex:1;padding:10px 0;border-radius:999px;border:1px solid rgba(20,20,20,.15);
+  background:transparent;cursor:pointer;font-size:13px;color:#333;font-weight:600;transition:.15s;
+  font-family:inherit;}
+.timer-mode.on{background:#2f7d4f;color:#fff;border-color:#2f7d4f;}
+.timer-display{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  font-size:58px;font-weight:800;color:#1a3a23;text-align:center;
+  letter-spacing:1px;line-height:1;padding:8px 0;font-variant-numeric:tabular-nums;}
+.timer-target{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;}
+.timer-target .lbl{font-size:13px;color:#4a5a4a;}
+.timer-target input{width:72px;padding:10px 8px;border-radius:10px;border:1px solid var(--line);
+  background:#fff;color:#14231a;font-size:16px;text-align:center;
+  font-family:ui-monospace,monospace;}
+.timer-target input:focus{outline:none;border-color:#2f7d4f;box-shadow:0 0 0 3px rgba(47,125,79,.18);}
+.timer-ctrls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.timer-ctrls .btn{min-width:104px;padding:11px 16px;font-size:14px;}
+.timer-save{align-self:stretch;text-align:center;background:#2f7d4f;color:#fff;
+  border-color:#2f7d4f;font-weight:600;padding:11px 16px;font-size:14px;}
+.timer-save:hover{background:#246b41;border-color:#246b41;}
+/* 运动健身原始记录输入行：在窄屏允许换行 */
+.ex-row{flex-wrap:wrap;row-gap:8px;}
+
+/* ---------- 日历（主页） ---------- */
+.cal-head{font-size:11px;color:var(--muted);text-align:center;padding:4px 0;font-weight:600;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.cal-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:9px;cursor:pointer;position:relative;font-size:13.5px;font-weight:500;color:var(--text);transition:background .15s;}
+.cal-cell:hover{background:var(--bg2);}
+.cal-cell.today{background:var(--accent);color:var(--on-accent);font-weight:700;}
+.cal-cell.dim{opacity:.32;cursor:default;}
+.cal-cell.has-note::after{content:"";position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--accent);}
+.cal-cell.today.has-note::after{background:#fff;}
+.cal-cell.dim.has-note::after{display:none;}
+
+/* ---------- 书单推荐 ---------- */
+.book-pages{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;padding:4px 4px 8px;margin:0 -4px;scrollbar-width:none;}
+.book-pages::-webkit-scrollbar{display:none;}
+.book-page{flex:0 0 calc(100% - 8px);scroll-snap-align:start;display:flex;flex-direction:column;gap:10px;}
+.book-card{padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--card,#fff);}
+.book-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.book-intro{font-size:12.5px;color:var(--text);opacity:.78;line-height:1.5;margin-top:5px;}
+.book-meta{font-size:11.5px;color:var(--muted);}
+.book-dots{display:flex;gap:6px;justify-content:center;align-items:center;}
+.book-dots .dot{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s,transform .2s;cursor:pointer;}
+.book-dots .dot.on{background:var(--accent);transform:scale(1.3);}
+.book-tabs{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+.book-tab{padding:5px 11px;font-size:12px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);color:var(--text);cursor:pointer;user-select:none;transition:all .15s;}
+.book-tab.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600;}
+
 /* ---------- Home ---------- */
 .home-hero{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;}
 .big-clock{font-variant-numeric:tabular-nums;font-size:46px;font-weight:800;letter-spacing:1px;color:var(--accent);line-height:1;}
@@ -258,6 +310,11 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 
 .tl-node.today .tl-dot{background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);}
 .tl-date{font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;}
 .tl-date .sum{font-size:12px;color:var(--muted);font-weight:400;}
+/* 时间轴一键清空当天按钮：靠右放，红底实色醒目，点击不触发 toggleNode */
+.tl-del{margin-left:auto;font-size:12px;font-weight:600;padding:4px 10px;border:1px solid #d76e6e;border-radius:9px;background:rgba(228,109,109,.10);color:#b85959;cursor:pointer;transition:.15s;line-height:1.3;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
+.tl-del:hover{background:#d76e6e;color:#fff;border-color:#b85959;transform:translateY(-1px);box-shadow:0 2px 6px rgba(216,110,110,.32);}
+.tl-del:active{transform:translateY(0);}
+@media(max-width:480px){.tl-del{font-size:11.5px;padding:3px 8px;}}
 .tl-body{margin-top:8px;}
 .rec{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);
   border-radius:12px;background:var(--card);margin-bottom:7px;font-size:13.5px;}
@@ -280,6 +337,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 
   background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;}
 .mood:hover{border-color:var(--accent);transform:scale(1.06);}
 .mood.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-soft);}
+/* 预设按钮（饮水/运动等）：自适应宽度 + 长文本自动换行 + 最大宽度限制，避免把整行撑破 */
+.preset-btn{width:auto;height:auto;min-height:42px;max-width:160px;padding:6px 14px;font-size:13px;line-height:1.35;word-break:break-word;white-space:normal;text-align:center;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;}
 
 /* ---------- Modal —— 半透明毛玻璃效果，可缩放 ---------- */
 .modal{position:fixed;inset:0;background:rgba(15,22,15,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;}
@@ -379,7 +438,7 @@ input[type="range"]::-webkit-slider-runnable-track{height:6px;border-radius:3px;
 .switch.on::after{left:23px;}
 .cat-manage{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
 .cat-manage .ic{font-size:18px;}
-.cat-manage .nm{flex:1;font-size:14px;}
+.cat-manage .nm{flex:1;font-size:14px;word-break:break-all;line-height:1.4;}
 .hint{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5;}
 
 /* ---------- Color Wheel (色环) —— 按参考图：外圈空心彩虹环 + 内方SV四角顶圆环 ---------- */
@@ -518,7 +577,63 @@ body.gradient{background:linear-gradient(135deg,
   .cw-btn{width:24px;height:24px;font-size:14px;}
   .cw-preview{width:36px;height:24px;}
   .cw-num-input{width:36px;height:22px;font-size:11px;}
+
+  /* ===== 全局移动端适配补丁（用户反馈：输入框/按钮/字号偏小） ===== */
+  /* 按钮最小可点高度 44px，避免拇指误触 */
+  .btn{min-height:44px;padding:11px 16px;font-size:14px;}
+  .btn.sm{min-height:36px;}
+  .chip{min-height:36px;padding:7px 11px;font-size:12px;}
+  /* 关键 input 字号提升到 ≥16px 防止 iOS Safari 自动放大导致整页缩放 */
+  .inp,.cw-num-input,.timer-target input,input#exName,input#exDur,input#exBody,input#dText,input#rBook,input#rPages,input#gTitle,input#gNote{font-size:16px;}
+  /* 运动健身输入行：窄屏允许换行、按钮可换行 */
+  .ex-row .btn,.ex-row .btn.sm{flex:1 0 auto;}
+  input#exDur{min-width:88px;width:88px;}
+  /* 饮食 / 通用 / 记录行：窄屏整行堆叠 */
+  .record-row{flex-direction:column;align-items:stretch;row-gap:8px;}
+  .record-row .btn,.record-row .btn.sm{width:100%;text-align:center;}
+  .record-row input{width:100%;}
+  /* 饮水 / 学习 / 运动 自定义记录行：窄屏整行堆叠，按钮整行展开，时间/分钟输入框整行宽 */
+  .water-row,.study-row{flex-direction:column;align-items:stretch;row-gap:8px;}
+  .water-row .btn,.study-row .btn{width:100%;}
+  .water-row input,.study-row input{width:100%;}
+  .water-row .water-time{max-width:100%;}
+  .study-row .study-dur{max-width:100%;}
+  .water-row .btn.soft.sm,.study-row .btn.soft.sm{width:100%;}
+  /* 预设按钮：手机端最大宽度更小一点，避免占用整行 */
+  .preset-btn{max-width:140px;font-size:12.5px;padding:7px 12px;min-height:40px;}
+  /* 记录卡 / 时间轴里的 .rec 在窄屏：文字小一档、垂直堆叠、链接换行 */
+  .rec{flex-wrap:wrap;row-gap:2px;}
+  .rec .rd{font-size:13px;line-height:1.5;word-break:break-word;}
+  .tl-date{font-size:12.5px;flex-wrap:wrap;row-gap:4px;}
+  /* 字号过小处微调 */
+  .hint{font-size:12.5px;}
+  .stat .l{font-size:12px;}
+  .week-h{font-size:14px;}
+  .tl-date .sum{font-size:13px;}
+  .badge{font-size:12px;}
+  .swatch-name{font-size:11px;}
+  /* 计时器在更窄屏调整 */
+  .timer-display{font-size:46px;}
+  .timer-target input{width:64px;padding:8px 6px;font-size:15px;}
+  .timer-ctrls .btn{min-width:90px;padding:10px 14px;font-size:13.5px;}
+  .timer-mode{font-size:12.5px;padding:9px 0;}
+  /* 顶栏：按钮组在窄屏换行更整齐 */
+  .topbar{gap:6px 8px;}
+  /* 触屏设备没有 hover，任务行的删除/修改按钮需常驻可见 */
+  .task .del{opacity:1;}
+  /* 时间轴添加任务输入框字号≥16px，避免 iOS Safari 自动放大整页 */
+  .tl-body .inp{font-size:16px;min-height:42px;}
+  /* 日历窄屏紧凑 */
+  .cal-cell{font-size:12.5px;}
+  .cal-head{font-size:10.5px;}
 }
+/* 外链：识别各 App / 视频平台，可点击跳转 */
+.ext-link{color:var(--accent);text-decoration:underline;font-weight:600;word-break:break-all;white-space:normal;}
+.ext-link:hover{opacity:.82;}
+/* 时间轴任务：已完成项用主题色高亮，未完成用灰圈 */
+.task-rec.done .rd.done{color:var(--accent);font-weight:600;}
+.task-rec .x{opacity:.45;font-size:15px;}
+.task-rec .x:hover{opacity:1;}
 /* ============== Profile (我的) ============== */
 .inp{font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg2);color:var(--text);width:100%;box-sizing:border-box;}
 .inp:focus{outline:none;border-color:var(--accent);}
@@ -755,6 +870,8 @@ body.gradient{background:linear-gradient(135deg,
 
 <!-- record image / preset modal -->
 <div class="modal" id="imgModal"><div class="modal-box"><div id="imgModalBody"></div></div></div>
+<div class="modal" id="noteModal"><div class="modal-box"><div id="noteModalBody"></div></div></div>
+<div class="modal" id="clearDayModal"><div class="modal-box"><div id="clearDayModalBody"></div></div></div>
 
 <script>
 /* ============== Data layer ============== */
@@ -871,6 +988,52 @@ const QUOTES=[
  {c:"温柔地对待自己，是一种勇气。",e:"Being gentle with yourself takes courage."},
  {c:"每一个微小习惯，都在悄悄重塑你。",e:"Every tiny habit is quietly reshaping you."},
 ];
+
+/* ============== Book DB（书单推荐） ============== */
+const BOOK_DB={
+ finance:{label:"财商",books:[
+  {id:"bk_richdad",title:"富爸爸穷爸爸",author:"罗伯特·清崎",intro:"重新定义资产与负债，建立财商思维的入门经典。"},
+  {id:"bk_dog",title:"小狗钱钱",author:"博多·舍费尔",intro:"童话式讲解理财，轻松读懂储蓄、投资与目标管理。"},
+  {id:"bk_babylon",title:"巴比伦最富有的人",author:"乔治·克拉森",intro:"古巴比伦寓言，揭示储蓄、消费与投资的永恒法则。"},
+  {id:"bk_freedom",title:"财务自由之路",author:"博多·舍费尔",intro:"系统化财务规划指南，从收入到财富的进阶手册。"},
+  {id:"bk_buffett",title:"穷查理宝典",author:"查理·芒格",intro:"巴菲特搭档的智慧箴言，逆向思维与多元思维模型。"},
+  {id:"bk_investor",title:"聪明的投资者",author:"本杰明·格雷厄姆",intro:"价值投资奠基之作，「安全边际」思想的源头。"}
+ ]},
+ history:{label:"历史",books:[
+  {id:"bk_sapiens",title:"人类简史",author:"尤瓦尔·赫拉利",intro:"从认知革命到人工智能，重新审视人类文明的来路。"},
+  {id:"bk_wanli",title:"万历十五年",author:"黄仁宇",intro:"大历史视角下，明朝一个平淡年份背后的制度困境。"},
+  {id:"bk_guns",title:"枪炮、病菌与钢铁",author:"贾雷德·戴蒙德",intro:"为什么是欧亚大陆征服了美洲？地理与生物的宏大解释。"},
+  {id:"bk_ming",title:"明朝那些事儿",author:"当年明月",intro:"用通俗笔法讲述三百年明史，让人笑着读完历史。"},
+  {id:"bk_qin",title:"大秦帝国",author:"孙皓晖",intro:"从商鞅变法到秦始皇统一，重塑一个伟大时代的脉络。"}
+ ]},
+ politics:{label:"政治",books:[
+  {id:"bk_dictator",title:"独裁者手册",author:"布鲁诺·德·梅斯奎塔",intro:"为什么独裁者很少独断专行？揭示统治者的政治经济学。"},
+  {id:"bk_polorder",title:"政治秩序的起源",author:"弗朗西斯·福山",intro:"从人类起源到法国大革命，政治制度的演化脉络。"},
+  {id:"bk_statecraft",title:"国家的常识",author:"迈克尔·罗斯金",intro:"政治学导论，写给普通人的国家与权力入门。"},
+  {id:"bk_democracy",title:"民主的细节",author:"任剑涛",intro:"美国政治文化的细读，理解民主如何运作于日常。"},
+  {id:"bk_concept",title:"观念的水位",author:"刘瑜",intro:"关于自由与民主的随笔，把抽象理念落到中国语境。"}
+ ]},
+ literature:{label:"文学",books:[
+  {id:"bk_solitude",title:"百年孤独",author:"加西亚·马尔克斯",intro:"马孔多镇七代人的命运，魔幻现实主义的巅峰之作。"},
+  {id:"bk_moon",title:"月亮与六便士",author:"毛姆",intro:"一个中年人抛弃安稳人生，去追内心月亮的故事。"},
+  {id:"bk_kite",title:"追风筝的人",author:"卡勒德·胡赛尼",intro:"阿富汗少年的成长与救赎，亲情与友谊的拷问。"},
+  {id:"bk_forest",title:"挪威的森林",author:"村上春树",intro:"青春期的孤独、爱与失落，一代人的成长记忆。"},
+  {id:"bk_alive",title:"活着",author:"余华",intro:"一个普通中国人在时代洪流里的苦难与坚韧。"}
+ ]},
+ feminism:{label:"女性主义",books:[
+  {id:"bk_secondsex",title:"第二性",author:"西蒙娜·波伏娃",intro:"女性主义奠基之作，「女人不是天生的，而是被造就的」。"},
+  {id:"bk_attic",title:"阁楼上的疯女人",author:"桑德拉·吉尔伯特",intro:"从简·爱到简·奥斯汀，文学中的女性形象反叛史。"},
+  {id:"bk_room",title:"一间自己的房间",author:"弗吉尼亚·伍尔夫",intro:"女性写作的先决条件：钱与属于自己的空间。"},
+  {id:"bk_misogyny",title:"厌女",author:"上野千鹤子",intro:"东亚语境下的厌女现象，从家庭到社会的深层剖析。"},
+  {id:"bk_three",title:"我们仨",author:"杨绛",intro:"钱钟书与杨绛一家三口的日常，温情与岁月并行的回忆录。"}
+ ]},
+ psychology:{label:"心理·成长",books:[
+  {id:"bk_courage",title:"被讨厌的勇气",author:"岸见一郎",intro:"阿德勒心理学的通俗演绎，自由与幸福的关系。"},
+  {id:"bk_nvc",title:"非暴力沟通",author:"马歇尔·卢森堡",intro:"如何不带伤害地表达自己和倾听他人。"},
+  {id:"bk_inferiority",title:"自卑与超越",author:"阿尔弗雷德·阿德勒",intro:"理解自卑感如何塑造人格与人生方向。"},
+  {id:"bk_road",title:"少有人走的路",author:"M·斯科特·派克",intro:"心智成熟的旅程——自律、爱与信仰的艰难选择。"}
+ ]}
+};
 function migrate(){
   store.cats=store.cats||JSON.parse(JSON.stringify(DEFAULT_CATS));
   store.cats.forEach(c=>{if(c.presets===undefined)c.presets=[];});
@@ -882,6 +1045,9 @@ function migrate(){
   store.bgMedia=store.bgMedia||null;
   store.layout=store.layout||{};
   if(store.layout.topbarPad===undefined)store.layout.topbarPad=48;
+  store.notes=store.notes||{};              // 主页日历每日备注（按日期 yyyy-mm-dd）
+  store.bookShelf=store.bookShelf||[];      // 用户书架：[{id,title,author,genre,intro,addedAt}]
+  store.bookPref=store.bookPref||[];        // 用户偏好的书单题材 id 列表
 }
 migrate();
 let current="home";
@@ -1052,6 +1218,8 @@ function renderContent(){
   const c=catById(current);if(!c){el.innerHTML="";return;}
   el.innerHTML=renderCatView(c);
   bindCat(c);
+  // 书单推荐书页 → 绑定滚动监听与点击 dot 跳转（每页恰好填满一个 .book-page）
+  if(current==="reading")setTimeout(bindBookDots,30);
 }
 
 /* ============== Profile (我的) ============== */
@@ -1191,6 +1359,7 @@ function renderHome(){
     </div>
   </div>
   <div class="grid mt" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${catsHtml}</div>
+  <div class="mt">${renderCalendar()}</div>
   `;
 }
 function longestStreak(){
@@ -1207,6 +1376,97 @@ function longestStreak(){
   return s;
 }
 
+/* ============== 主页日历 & 每日备注 ============== */
+function getCalState(){
+  if(!window._cal){const d=new Date();window._cal={year:d.getFullYear(),month:d.getMonth()};}
+  return window._cal;
+}
+function renderCalendar(){
+  store.notes=store.notes||{};
+  const cs=getCalState();
+  const y=cs.year, m=cs.month;
+  const first=new Date(y,m,1);
+  const startDow=first.getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const prevDays=new Date(y,m,0).getDate();
+  const todayStr=todayKey();
+  const labels=["日","一","二","三","四","五","六"];
+  let head=`<div class="row" style="justify-content:space-between;align-items:center">
+    <button class="btn soft sm" onclick="changeCalMonth(-1)">‹ 上一月</button>
+    <div><b>${y} 年 ${m+1} 月</b></div>
+    <button class="btn soft sm" onclick="changeCalMonth(1)">下一月 ›</button>
+  </div>`;
+  let grid=`<div class="cal-grid mt">`;
+  labels.forEach(l=>{grid+=`<div class="cal-head">${l}</div>`;});
+  // 前置空白（上月末尾几天）
+  for(let i=startDow-1;i>=0;i--){
+    const day=prevDays-i;
+    grid+=`<div class="cal-cell dim">${day}</div>`;
+  }
+  // 当月日期
+  for(let d=1;d<=days;d++){
+    const key=y+"-"+pad(m+1)+"-"+pad(d);
+    const isToday=(key===todayStr);
+    const hasNote=!!(store.notes[key]&&store.notes[key].trim());
+    grid+=`<div class="cal-cell${isToday?" today":""}${hasNote?" has-note":""}" onclick="openDayNote('${key}')" title="${key}${hasNote?" · 已写备注":""}">${d}</div>`;
+  }
+  // 末尾空白补齐到 7 的倍数
+  const total=startDow+days;
+  const tail=(7-(total%7))%7;
+  for(let i=1;i<=tail;i++){grid+=`<div class="cal-cell dim">${i}</div>`;}
+  grid+=`</div>`;
+  const noteCount=Object.keys(store.notes).filter(k=>store.notes[k]&&store.notes[k].trim()).length;
+  return `<div class="card">
+    <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+      <div><b>📅 日历与每日备注</b>${noteCount?` <span class="small muted">· 已写 ${noteCount} 天</span>`:""}</div>
+      <button class="btn ghost sm" onclick="goToday()">跳到今天</button>
+    </div>
+    ${head}
+    ${grid}
+    <div class="small muted mt">点击日期可写当日计划或提醒 · 有备注的日子右下角有小圆点 · 今日已高亮</div>
+  </div>`;
+}
+function changeCalMonth(d){
+  const cs=getCalState();cs.month+=d;
+  if(cs.month<0){cs.month=11;cs.year--;}
+  if(cs.month>11){cs.month=0;cs.year++;}
+  renderContent();
+}
+function goToday(){const cs=getCalState();const d=new Date();cs.year=d.getFullYear();cs.month=d.getMonth();renderContent();}
+function openDayNote(date){
+  store.notes=store.notes||{};
+  const cur=store.notes[date]||"";
+  const body=document.getElementById("noteModalBody");
+  body.innerHTML=`
+    <h3>📅 ${date}</h3>
+    <div class="small muted mb">写下当天的计划、提醒、或任何想记住的事。保存后会在日历上显示一个小圆点。</div>
+    <textarea id="noteText_${date}" rows="8" placeholder="例：完成项目报告 / 提醒预约牙医 / 当日读书清单…" style="width:100%;font-family:inherit;font-size:15px;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--bg2);color:var(--text);box-sizing:border-box;resize:vertical;">${esc(cur)}</textarea>
+    <div class="row mt" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <button class="btn danger sm" onclick="deleteDayNote('${date}')"${cur?"":" disabled style=\"opacity:.4;cursor:not-allowed\""}>🗑 删除</button>
+      <div class="row" style="gap:8px">
+        <button class="btn soft" onclick="closeModal('noteModal')">取消</button>
+        <button class="btn" onclick="saveDayNote('${date}')">✓ 保存</button>
+      </div>
+    </div>`;
+  openModal("noteModal");
+  setTimeout(()=>{const el=document.getElementById("noteText_"+date);if(el)el.focus();},120);
+}
+function saveDayNote(date){
+  const el=document.getElementById("noteText_"+date);if(!el)return;
+  const v=(el.value||"").trim();
+  store.notes=store.notes||{};
+  if(v)store.notes[date]=v;else delete store.notes[date];
+  save();closeModal("noteModal");renderContent();
+  toast(v?"✓ 已保存 "+date+" 的备注":"已清空 "+date+" 的备注");
+}
+function deleteDayNote(date){
+  if(!confirm("删除 "+date+" 的备注？"))return;
+  store.notes=store.notes||{};
+  delete store.notes[date];
+  save();closeModal("noteModal");renderContent();
+  toast("已删除 "+date+" 的备注");
+}
+
 /* ============== Tasks (special) ============== */
 function getTasks(date,c){
   if(store.mode==="cumulative"){
@@ -1217,22 +1477,43 @@ function getTasks(date,c){
   if(!dd.items){dd.items=c.presets.map(p=>({id:uid(),text:p,done:false}));save();}
   return dd.items;
 }
-function toggleTask(id){
-  const c=catById(current);const items=getTasks(todayKey(),c);
-  const it=items.find(x=>x.id===id);if(it){it.done=!it.done;save();renderContent();}
+/* 任务存储定位：daily 模式按天存于 store.data[date][cId].items；cumulative 模式存于分类 c.items */
+function taskStore(cId,date,create){
+  const c=catById(cId);
+  const dd=store.data[date]&&store.data[date][cId];
+  if(dd&&dd.items)return dd.items;
+  if(store.mode==="cumulative")return c.items||(c.items=[]);
+  if(create){dayData(date,cId);store.data[date][cId].items=[];return store.data[date][cId].items;}
+  return [];
 }
+/* 时间轴/历史日期通用的任务增删改勾选（今日卡片也复用） */
+function toggleTaskAt(cId,date,id){const a=taskStore(cId,date,false);const it=a.find(x=>x.id===id);if(it){it.done=!it.done;save();renderContent();}}
+function delTaskAt(cId,date,id){
+  const a=taskStore(cId,date,false);const arr=a.filter(x=>x.id!==id);
+  const dd=store.data[date]&&store.data[date][cId];
+  if(dd&&dd.items)dd.items=arr;
+  else if(store.mode==="cumulative"){const c=catById(cId);c.items=arr;c.presets=c.items.map(x=>x.text);}
+  else if(dd)dd.items=arr;
+  save();renderContent();
+}
+function editTaskAt(cId,date,id){
+  const a=taskStore(cId,date,false);const it=a.find(x=>x.id===id);if(!it)return;
+  const v=prompt("修改任务内容：",it.text);if(v===null)return;const t=v.trim();if(!t)return;
+  it.text=t;save();renderContent();
+}
+function addTaskDate(cId,date){
+  const el=document.getElementById("taskAdd_"+date);if(!el)return;
+  const v=el.value.trim();if(!v)return;
+  const a=taskStore(cId,date,true);a.push({id:uid(),text:v,done:false});el.value="";save();renderContent();
+}
+/* 今日卡片专用入口 */
+function toggleTask(id){toggleTaskAt(catById(current).id,todayKey(),id);}
 function addTask(){
   const c=catById(current);const v=document.getElementById("taskInput").value.trim();if(!v)return;
   const items=getTasks(todayKey(),c);items.push({id:uid(),text:v,done:false});if(store.mode==="cumulative")c.presets.push(v);
   document.getElementById("taskInput").value="";save();renderContent();
 }
-function delTask(id){
-  const c=catById(current);const items=getTasks(todayKey(),c);
-  const filtered=items.filter(x=>x.id!==id);
-  if(store.mode==="cumulative"){c.items=filtered;c.presets=c.items.map(x=>x.text);}
-  else{const dd=dayData(todayKey(),c.id);dd.items=filtered;}
-  save();renderContent();
-}
+function delTask(id){delTaskAt(catById(current).id,todayKey(),id);}
 
 /* ============== Category view ============== */
 function renderCatView(c){
@@ -1259,11 +1540,11 @@ function renderTasks(c){
   const streak=cumStreak(c);
   let h=`<div class="mt">`;
   items.forEach(it=>{
-    h+=`<div class="task ${it.done?"done":""}"><div class="box" onclick="toggleTask('${it.id}')">${it.done?"✓":""}</div><div class="tx">${esc(it.text)}</div><button class="del" onclick="delTask('${it.id}')">✕</button></div>`;
+    h+=`<div class="task ${it.done?"done":""}"><div class="box" onclick="toggleTaskAt('${c.id}','${todayKey()}', '${it.id}')">${it.done?"✓":""}</div><div class="tx">${esc(it.text)}</div><button class="del" title="修改" onclick="editTaskAt('${c.id}','${todayKey()}','${it.id}')">✎</button><button class="del" title="删除" onclick="delTaskAt('${c.id}','${todayKey()}','${it.id}')">✕</button></div>`;
   });
   h+=`</div>`;
   h+=`<div class="row mt" style="align-items:center">
-      <input id="taskInput" placeholder="新增小任务，回车添加" onkeydown="if(event.key==='Enter')addTask()">
+      <input id="taskInput" class="inp" placeholder="新增小任务，回车添加" onkeydown="if(event.key==='Enter')addTask()">
       <button class="btn" onclick="addTask()">＋ 添加</button></div>`;
   if(store.mode==="cumulative"&&streak>0)h+=`<div class="hint">累积模式：任务不每日清空，已连续打卡 <b>${streak}</b> 天 🔥</div>`;
   return h;
@@ -1296,32 +1577,34 @@ function addMood(){
   dayData(todayKey(),c.id).records.push({id:uid(),time,mood:window._mood||"",note,type:"mood"});
   save();renderContent();
 }
-function renderMoodRec(r){return `<div class="rec"><span class="rt">${r.time}</span><div class="rd">${r.mood?`<b>${r.mood}</b> `:""}${esc(r.note)||"<span class='muted'>（仅打卡心情）</span>"}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
+function renderMoodRec(r){return `<div class="rec"><span class="rt">${r.time}</span><div class="rd">${r.mood?`<b>${r.mood}</b> `:""}${r.note?linkify(r.note):"<span class='muted'>（仅打卡心情）</span>"}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
 
 /* ----- Water ----- */
 function renderWater(c){
   const presets=c.presets;
   let h=`<div class="mt small muted">快速添加（可管理预设）</div><div class="moods mt" id="waterPick">`;
-  presets.forEach(p=>{h+=`<div class="mood" style="width:auto;padding:0 14px;font-size:13px;height:42px" onclick="addWater('${esc(p)}')">${p}</div>`;});
+  presets.forEach(p=>{h+=`<div class="mood preset-btn" data-p="${esc(p)}" onclick="addWaterFromBtn(this)" title="${esc(p)}">${p}</div>`;});
   h+=`</div>`;
-  h+=`<div class="row mt" style="align-items:center"><input id="wTime" value="${nowHM()}" style="max-width:110px" placeholder="时间"><input id="wCups" placeholder="喝了什么 / 几杯，如：温水 1杯" style="flex:1"><button class="btn" onclick="addWaterCustom()">记录</button><button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button></div>`;
+  h+=`<div class="row mt water-row" style="align-items:center"><input id="wTime" value="${nowHM()}" class="water-time inp" placeholder="时间"><input id="wCups" class="inp" placeholder="喝了什么 / 几杯，如：温水 1杯"><button class="btn" onclick="addWaterCustom()">记录</button><button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button></div>`;
   const recs=dayData(todayKey(),c.id).records;const cups=recs.length;
   h+=`<div class="hint mt">今日已记录 <b>${cups}</b> 次饮水 💧 小口多次，比一次猛灌更解渴。</div>`;
   return h;
 }
 function addWater(p){dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),text:p,type:"water"});save();renderContent();}
+/* 从预设按钮触发：读 data-p 防止属性注入 / 多次解析；并对 1 秒内重复触发自动忽略（防止误触/手抖造成多条重复） */
+function addWaterFromBtn(btn){if(btn._locked)return;btn._locked=true;setTimeout(()=>{btn._locked=false;},1000);addWater(btn.dataset.p||"");}
 function addWaterCustom(){const t=document.getElementById("wTime").value||nowHM();const v=document.getElementById("wCups").value.trim();if(!v)return;dayData(todayKey(),catById(current).id).records.push({id:uid(),time:t,text:v,type:"water"});save();renderContent();}
-function renderWaterRec(r){return `<div class="rec"><span class="rt">${r.time}</span><div class="rd">${esc(r.text)}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
+function renderWaterRec(r){return `<div class="rec"><span class="rt">${r.time}</span><div class="rd">${linkify(r.text)}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
 
 /* ----- Diet ----- */
 function renderDiet(c){
-  let h=`<div class="mt row" style="align-items:center"><input id="dText" placeholder="吃了什么，如：番茄鸡蛋面" style="flex:1"><button class="btn" onclick="document.getElementById('dImg').click()">📷 拍照/上传</button><input id="dImg" type="file" accept="image/*" style="display:none" onchange="addDiet(this)"><button class="btn ghost" onclick="addDietText()">记录</button><button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button></div>`;
+  let h=`<div class="mt row record-row" style="align-items:center"><input id="dText" placeholder="吃了什么，如：番茄鸡蛋面" style="flex:1"><button class="btn" onclick="document.getElementById('dImg').click()">📷 拍照/上传</button><input id="dImg" type="file" accept="image/*" style="display:none" onchange="addDiet(this)"><button class="btn ghost" onclick="addDietText()">记录</button><button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button></div>`;
   h+=`<div class="hint">记录三餐与加餐，配上照片，饮食日记会陪你慢慢变好。</div>`;
   return h;
 }
 function addDietText(){const v=document.getElementById("dText").value.trim();if(!v)return;dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),text:v,type:"diet"});save();renderContent();}
 function addDiet(input){const v=document.getElementById("dText").value.trim()||"饮食";const f=input.files[0];if(!f){addDietText();return;}compressImg(f,data=>{dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),text:v,img:data,type:"diet"});save();renderContent();});input.value="";}
-function renderDietRec(r){return `<div class="rec"><span class="rt">${r.time}</span>${r.img?`<img src="${r.img}" alt="">`:""}<div class="rd">${esc(r.text)}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
+function renderDietRec(r){return `<div class="rec"><span class="rt">${r.time}</span>${r.img?`<img src="${r.img}" alt="">`:""}<div class="rd">${linkify(r.text)}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
 
 /* ----- Sleep ----- */
 function renderSleep(c){
@@ -1372,6 +1655,9 @@ function renderReading(c){
     names.forEach(b=>{const bk=books[b];const total=(store.bookTotal&&store.bookTotal[b])||0;const pg=total?Math.min(100,Math.round(bk.pages/total*100)):0;
       h+=`<div class="book-pg"><span style="min-width:120px">${esc(b)}</span><div class="prog" style="flex:1"><i style="width:${pg}%"></i></div><span class="small" style="min-width:90px;text-align:right">${bk.pages}页${total?" / "+total:""}</span><button class="btn soft sm" onclick="setTotal('${esc(b)}')">设总数</button></div>`;});
   }else{h+=`<div class="hint mt">还没有阅读记录，今天读 10 分钟也是很好的开始。</div>`;}
+  // ===== 书单推荐 + 我的书架 =====
+  h+=renderBookRec();
+  h+=renderBookShelf();
   return h;
 }
 function addReading(){
@@ -1383,45 +1669,330 @@ function addReading(){
 function setTotal(b){const v=prompt("《"+b+"》总页数：",(store.bookTotal&&store.bookTotal[b])||"");if(v&&!isNaN(v)){store.bookTotal=store.bookTotal||{};store.bookTotal[b]=parseInt(v);save();renderContent();}}
 function renderReadingRec(r){return `<div class="rec"><span class="rt">${r.time}</span><div class="rd">《${esc(r.book)}》 +${r.pages}页 <span class="badge ${r.type==="线上"?"blue":"amber"}">${r.type}</span></div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
 
+/* ============== 书单推荐（按题材） ============== */
+function bookById(id){for(const k in BOOK_DB){const f=BOOK_DB[k].books.find(b=>b.id===id);if(f)return{...f,genre:k,genreLabel:BOOK_DB[k].label};}return null;}
+function genreOrder(){
+  // 偏好题材靠前，其余按 BOOK_DB 声明顺序
+  const all=Object.keys(BOOK_DB);
+  const pref=(store.bookPref||[]).filter(k=>all.includes(k));
+  const rest=all.filter(k=>!pref.includes(k));
+  return pref.concat(rest);
+}
+function isInShelf(bookId){return (store.bookShelf||[]).some(b=>b.id===bookId);}
+function addBookToShelf(bookId){
+  store.bookShelf=store.bookShelf||[];
+  if(isInShelf(bookId))return;
+  const b=bookById(bookId);if(!b)return;
+  store.bookShelf.push({id:b.id,title:b.title,author:b.author,genre:b.genre,genreLabel:b.genreLabel,intro:b.intro,addedAt:Date.now()});
+  save();renderContent();toast("✓ 已加入《"+b.title+"》");
+}
+function removeBookFromShelf(bookId){
+  store.bookShelf=store.bookShelf||[];
+  const before=store.bookShelf.length;
+  store.bookShelf=store.bookShelf.filter(b=>b.id!==bookId);
+  if(store.bookShelf.length!==before){save();renderContent();toast("已移出书架");}
+}
+function toggleGenrePref(genreId){
+  store.bookPref=store.bookPref||[];
+  const i=store.bookPref.indexOf(genreId);
+  if(i>=0)store.bookPref.splice(i,1);
+  else store.bookPref.push(genreId);
+  save();renderContent();
+}
+function scrollBookPages(dir){
+  const el=document.getElementById('bookPages');if(!el)return;
+  const page=el.querySelector('.book-page');if(!page)return;
+  el.scrollBy({left:dir*(page.offsetWidth+14),behavior:'smooth'});
+}
+function bindBookDots(){
+  const el=document.getElementById('bookPages');if(!el)return;
+  const update=()=>{
+    const pages=el.querySelectorAll('.book-page');if(!pages.length)return;
+    const w=pages[0].offsetWidth+14;
+    const idx=Math.round(el.scrollLeft/w);
+    document.querySelectorAll('#bookDots .dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+  };
+  el.onscroll=update;
+  // 点击 dot 跳转
+  document.querySelectorAll('#bookDots .dot').forEach((d,i)=>{
+    d.onclick=()=>{const pages=el.querySelectorAll('.book-page');if(pages[i])el.scrollTo({left:i*(pages[0].offsetWidth+14),behavior:'smooth'});};
+  });
+  setTimeout(update,50);
+}
+function renderBookRec(){
+  store.bookShelf=store.bookShelf||[];store.bookPref=store.bookPref||[];
+  const order=genreOrder();
+  // 题材标签栏
+  const tabs=order.map(k=>{
+    const on=store.bookPref.includes(k);
+    return `<div class="book-tab${on?" on":""}" onclick="toggleGenrePref('${k}')" title="${on?"取消优先推荐":"优先推荐此题材"}">${BOOK_DB[k].label}${on?" ⭐":""}</div>`;
+  }).join("");
+  // 每个题材一页（按偏好顺序）
+  const pages=order.map((k,gi)=>{
+    const g=BOOK_DB[k];
+    const cards=g.books.map(b=>{
+      const inShelf=isInShelf(b.id);
+      return `<div class="book-card">
+        <div class="book-title">《${esc(b.title)}》</div>
+        <div class="book-meta">作者：${esc(b.author)}</div>
+        <div class="book-intro">${esc(b.intro)}</div>
+        <div class="row mt" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+          <span class="badge">${g.label}</span>
+          <button class="btn sm" onclick="${inShelf?"removeBookFromShelf('"+b.id+"')":"addBookToShelf('"+b.id+"')"}" style="${inShelf?"background:#6b8a6b;color:#fff;border-color:#6b8a6b;":""}">${inShelf?"✓ 在书架":"＋ 加入书架"}</button>
+        </div>
+      </div>`;
+    }).join("");
+    return `<div class="book-page" data-genre="${k}">${cards}</div>`;
+  }).join("");
+  const dots=order.map((k,i)=>`<div class="dot" data-i="${i}"></div>`).join("");
+  return `<div class="card mt">
+    <div><b>📚 AI 推荐书单（按分类）</b></div>
+    <div class="small muted mt">以下精选书单覆盖考研之外的多元成长。点 <b>＋ 加入书架</b> 即可添加到下方我的书架。</div>
+    <div class="book-tabs mt">${tabs}</div>
+    <div class="book-pages mt" id="bookPages">${pages}</div>
+    <div class="book-dots" id="bookDots" style="margin-top:8px">${dots}</div>
+    <div class="small muted" style="text-align:center;margin-top:6px">← 左右滑动浏览分类 · 点标签可优先推荐该题材 →</div>
+  </div>`;
+}
+function renderBookShelf(){
+  store.bookShelf=store.bookShelf||[];
+  if(!store.bookShelf.length){
+    return `<div class="card mt">
+      <div><b>📖 我的书架</b> <span class="small muted">· 0 本</span></div>
+      <div class="hint mt">从上方推荐书单点 <b>＋ 加入书架</b>，书本就会出现在这里。</div>
+    </div>`;
+  }
+  const list=store.bookShelf.slice().sort((a,b)=>(b.addedAt||0)-(a.addedAt||0)).map(b=>{
+    const total=(store.bookTotal&&store.bookTotal[b.title])||0;
+    const pages=((store.data&&Object.keys(store.data).reduce((sum,d)=>{
+      const rs=(store.data[d].reading&&store.data[d].reading.records)||[];
+      return sum+rs.filter(r=>r.book===b.title).reduce((s,r)=>s+(parseInt(r.pages)||0),0);
+    },0))||0);
+    const pg=total?Math.min(100,Math.round(pages/total*100)):0;
+    return `<div class="book-card">
+      <div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div class="book-title">《${esc(b.title)}》</div>
+          <div class="book-meta">作者：${esc(b.author)} · <span class="badge">${esc(b.genreLabel)}</span></div>
+          ${total?`<div class="book-meta mt">已读 ${pages} / ${total} 页 · ${pg}%</div>`:`<div class="book-meta mt">📌 尚未开始阅读</div>`}
+        </div>
+        <button class="btn danger sm" onclick="removeBookFromShelf('${b.id}')" title="从书架移除">✕</button>
+      </div>
+      <div class="book-intro">${esc(b.intro)}</div>
+    </div>`;
+  }).join("");
+  return `<div class="card mt">
+    <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+      <div><b>📖 我的书架</b> <span class="small muted">· 共 ${store.bookShelf.length} 本</span></div>
+      <button class="btn ghost sm" onclick="if(confirm('清空整个书架？')){store.bookShelf=[];save();renderContent();}">清空书架</button>
+    </div>
+    <div class="mt">${list}</div>
+  </div>`;
+}
+
 /* ----- Exercise ----- */
 function renderExercise(c){
   const recs=dayData(todayKey(),c.id).records;
   const days=Object.keys(store.data).filter(d=>(store.data[d].exercise&&store.data[d].exercise.records.length)).length;
   let h=`<div class="mt small muted">今天练了什么？（预设可管理）</div><div class="moods mt" id="exPick">`;
-  c.presets.forEach(p=>{h+=`<div class="mood" style="width:auto;padding:0 14px;font-size:13px;height:42px" onclick="addEx('${esc(p)}')">${p}</div>`;});
+  c.presets.forEach(p=>{h+=`<div class="mood preset-btn" data-p="${esc(p)}" onclick="addExFromBtn(this)" title="${esc(p)}">${p}</div>`;});
   h+=`</div>`;
-  h+=`<div class="row mt" style="align-items:center"><input id="exName" placeholder="运动项目（自定义）" style="flex:1"><input id="exDur" type="number" placeholder="分钟" style="max-width:90px"><input id="exBody" placeholder="身体状态：轻松/酸痛/疲惫…" style="flex:1.2"><button class="btn" onclick="addExCustom()">记录</button><button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button></div>`;
-  h+=`<div class="hint mt">已打卡 <b>${days}</b> 天运动 🔥 身体状态帮你看见自己的恢复曲线。</div>`;
+  // ===== 计时器（正计时 / 倒计时）=====
+  h+=renderTimerCard(c);
+  // 原有「自定义记录」输入行——窄屏 wrap 后不挤
+  h+=`<div class="row mt ex-row" style="align-items:center"><input id="exName" placeholder="运动项目（自定义）" style="flex:1;min-width:140px"><input id="exDur" type="number" inputmode="numeric" placeholder="分钟" style="width:88px"><input id="exBody" placeholder="身体状态：轻松/酸痛/疲惫…" style="flex:1;min-width:140px"><button class="btn" onclick="addExCustom()">记录</button><button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button></div>`;
+  h+=`<div class="hint mt">已打卡 <b>${days}</b> 天运动 🔥 身体状态帮你看见自己的恢复曲线。计时完成后点「记入今日运动」可一键写入记录。</div>`;
   return h;
 }
 function addEx(p){dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),name:p,type:"exercise"});save();renderContent();}
+/* 从预设按钮触发：读 data-p 防止属性注入 / 多次解析；1 秒内重复触发自动忽略（防止误触/手抖造成多条重复） */
+function addExFromBtn(btn){if(btn._locked)return;btn._locked=true;setTimeout(()=>{btn._locked=false;},1000);addEx(btn.dataset.p||"");}
 function addExCustom(){const n=document.getElementById("exName").value.trim();const d=document.getElementById("exDur").value;const b=document.getElementById("exBody").value.trim();if(!n)return;dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),name:n,dur:d,body:b,type:"exercise"});save();renderContent();}
-function renderExerciseRec(r){let extra="";if(r.dur)extra+=" "+r.dur+"分钟";if(r.body)extra+=' <span class="badge">'+esc(r.body)+"</span>";return `<div class="rec"><span class="rt">${r.time}</span><div class="rd"><b>${esc(r.name)}</b>${extra}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
+function renderExerciseRec(r){let extra="";if(r.dur)extra+=" "+r.dur+"分钟";if(r.body)extra+=' <span class="badge">'+linkify(r.body)+"</span>";return `<div class="rec"><span class="rt">${r.time}</span><div class="rd"><b>${linkify(r.name)}</b>${extra}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
+
+/* ----- Timer（按分类隔离；运动 / 学习共用）-----
+   状态保存在 window._timers[catId]，每个分类独立计时；
+   切换分类时双方计时继续在后台运行，回到页面立即刷新显示。 */
+function getTimer(catId){
+  if(!window._timers)window._timers={};
+  if(!window._timers[catId]){
+    window._timers[catId]={mode:'stopwatch',running:false,startTs:0,elapsedMs:0,countdownMs:0,targetMin:5,targetSec:0,interval:null};
+  }
+  return window._timers[catId];
+}
+function tsCur(){return getTimer(current);}
+function renderTimerCard(c){
+  const ts=getTimer(c.id);
+  const _dms=Math.max(0,ts.elapsedMs);
+  const _ds=Math.floor(_dms/1000), _dm=Math.floor(_ds/60), _dsec=_ds%60;
+  const _disp=String(_dm).padStart(2,'0')+':'+String(_dsec).padStart(2,'0');
+  const saveLabel=c.type==='study'?'✓ 记入今日学习':'✓ 记入今日运动';
+  return `
+    <div class="timer-box" id="timerBox">
+      <div class="timer-modes">
+        <button type="button" class="timer-mode${ts.mode==='stopwatch'?' on':''}" id="tModeStop" onclick="setTimerMode('stopwatch')">⏱️ 正计时</button>
+        <button type="button" class="timer-mode${ts.mode==='countdown'?' on':''}" id="tModeDown" onclick="setTimerMode('countdown')">⏳ 倒计时</button>
+      </div>
+      <div class="timer-display" id="timerDisplay">${_disp}</div>
+      <div class="timer-target" id="timerTargetRow" style="${ts.mode==='countdown'?'':'display:none;'}">
+        <span class="lbl">目标</span>
+        <input id="tMin" type="number" inputmode="numeric" min="0" max="999" value="${ts.targetMin}" onchange="getTimer(current).targetMin=parseInt(this.value)||0" aria-label="分钟">
+        <span class="lbl">分</span>
+        <input id="tSec" type="number" inputmode="numeric" min="0" max="59" value="${ts.targetSec}" onchange="getTimer(current).targetSec=parseInt(this.value)||0" aria-label="秒">
+        <span class="lbl">秒</span>
+      </div>
+      <div class="timer-ctrls">
+        <button type="button" class="btn ghost" id="tBtnStart" onclick="startTimer()"${ts.running?' disabled style="opacity:.5;cursor:not-allowed;"':''}>▶ 开始</button>
+        <button type="button" class="btn soft" id="tBtnPause" onclick="pauseTimer()"${!ts.running?' disabled style="opacity:.5;cursor:not-allowed;"':''}>⏸ 暂停</button>
+        <button type="button" class="btn soft" id="tBtnReset" onclick="resetTimer()">↺ 重置</button>
+      </div>
+      <button type="button" class="timer-save btn" id="tBtnSave" onclick="saveTimerToToday()">${saveLabel}</button>
+    </div>
+  `;
+}
+function setTimerMode(m){
+  const ts=tsCur();if(!ts||ts.running)return;
+  ts.mode=m;
+  const a=document.getElementById('tModeStop'),b=document.getElementById('tModeDown');
+  if(a)a.classList.toggle('on',m==='stopwatch');
+  if(b)b.classList.toggle('on',m==='countdown');
+  const row=document.getElementById('timerTargetRow');
+  if(row)row.style.display=m==='countdown'?'':'none';
+  ts.elapsedMs=0; _timerRender(current);
+}
+function _timerRender(catId){
+  if(catId!==current)return;
+  const ts=getTimer(catId);if(!ts)return;
+  const ms=Math.max(0,ts.elapsedMs);
+  const total=Math.floor(ms/1000), m=Math.floor(total/60), s=total%60;
+  const txt=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const el=document.getElementById('timerDisplay');if(el)el.textContent=txt;
+}
+function _timerRefreshCtrls(catId){
+  if(catId!==current)return;
+  const ts=getTimer(catId);if(!ts)return;
+  const bs=document.getElementById('tBtnStart');
+  const bp=document.getElementById('tBtnPause');
+  if(bs){bs.disabled=!!ts.running;bs.style.opacity=ts.running?'.5':'1';bs.style.cursor=ts.running?'not-allowed':'pointer';}
+  if(bp){bp.disabled=!ts.running;bp.style.opacity=ts.running?'1':'.5';bp.style.cursor=ts.running?'pointer':'not-allowed';}
+}
+function startTimer(){
+  const ts=tsCur();if(!ts||ts.running)return;
+  if(ts.mode==='countdown'){
+    const m=Math.max(0,parseInt(document.getElementById('tMin').value)||0);
+    const s=Math.max(0,parseInt(document.getElementById('tSec').value)||0);
+    ts.targetMin=m;ts.targetSec=s;
+    ts.countdownMs=(m*60+s)*1000;
+    if(ts.countdownMs<=0){alert('请先设置倒计时目标（分/秒）');return;}
+  }
+  ts.startTs=Date.now()-ts.elapsedMs;
+  ts.running=true;
+  if(ts.interval)clearInterval(ts.interval);
+  const myCat=current;
+  ts.interval=setInterval(()=>_timerTick(myCat),250);
+  _timerRefreshCtrls(myCat);
+}
+function pauseTimer(){
+  const ts=tsCur();if(!ts||!ts.running)return;
+  ts.elapsedMs=Date.now()-ts.startTs;
+  ts.running=false;
+  if(ts.interval){clearInterval(ts.interval);ts.interval=null;}
+  _timerRefreshCtrls(current);
+}
+function resetTimer(){
+  const ts=tsCur();if(!ts||ts.running)return;
+  ts.elapsedMs=0;_timerRender(current);
+}
+function _timerTick(catId){
+  const ts=getTimer(catId);if(!ts)return;
+  const now=Date.now();
+  if(ts.mode==='countdown'){
+    const remain=ts.countdownMs-(now-ts.startTs);
+    if(remain<=0){
+      ts.elapsedMs=ts.countdownMs;
+      ts.running=false;
+      if(ts.interval){clearInterval(ts.interval);ts.interval=null;}
+      _timerRender(catId);_timerRefreshCtrls(catId);
+      _timerEnd(catId);return;
+    }
+    ts.elapsedMs=remain;
+  }else{
+    ts.elapsedMs=now-ts.startTs;
+  }
+  _timerRender(catId);
+}
+function _timerBeep(){
+  try{
+    const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return;
+    const ctx=new Ctx(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.type='sine';o.frequency.value=880;
+    g.gain.setValueAtTime(0.001,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.3,ctx.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.7);
+    o.start();o.stop(ctx.currentTime+0.75);
+  }catch(e){}
+}
+function _timerEnd(catId){
+  try{navigator.vibrate&&navigator.vibrate([300,120,300,120,300]);}catch(e){}
+  _timerBeep();
+  setTimeout(()=>{try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){}},800);
+  setTimeout(_timerBeep,750);
+  const c=catById(catId);
+  const catName=c&&c.type==='study'?'学习':'运动';
+  alert('⏰ 倒计时结束！\n点下面「✓ 记入今日'+catName+'」可把本次时长写入今天的记录。');
+}
+function saveTimerToToday(){
+  const ts=tsCur();if(!ts)return;
+  const totalSec=Math.max(0,Math.floor(ts.elapsedMs/1000));
+  if(totalSec<=0){alert('当前计时为 0，无内容可记入。');return;}
+  const m=Math.floor(totalSec/60),s=totalSec%60;
+  const durStr=m?(s?(m+'分'+s+'秒'):(m+'分钟')):(s+'秒');
+  const c=catById(current);
+  const isStudy=c&&c.type==='study';
+  const catName=isStudy?'学习':'运动';
+  const defaultName=(ts.mode==='countdown'?(isStudy?'倒计时学习':'倒计时运动'):(isStudy?'正计时学习':'正计时运动'));
+  const name=prompt('本次'+catName+'的名称（可改成具体内容，如「跑步」「背单词」等）',defaultName);
+  if(!name)return;
+  const tag=ts.mode==='countdown'?'（倒计时）':'（正计时）';
+  const finalName=name+durStr+tag;
+  if(isStudy){
+    dayData(todayKey(),c.id).records.push({id:uid(),time:nowHM(),task:finalName,dur:Math.max(1,Math.round(totalSec/60)),type:'study'});
+  }else{
+    dayData(todayKey(),c.id).records.push({id:uid(),time:nowHM(),name:finalName,type:'exercise'});
+  }
+  save();renderContent();
+}
 
 /* ----- Study ----- */
 function renderStudy(c){
-  let h=`<div class="mt row" style="align-items:center"><input id="stTask" placeholder="学习任务，如：背单词50个 / 学法语Lesson3" style="flex:1.4"><input id="stDur" type="number" placeholder="分钟" style="max-width:90px"><button class="btn" onclick="addStudy()">记录</button><button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button></div>`;
+  let h=renderTimerCard(c);
+  h+=`<div class="mt row study-row" style="align-items:center"><input id="stTask" class="inp" placeholder="学习任务，如：背单词50个 / 学法语Lesson3"><input id="stDur" type="number" inputmode="numeric" placeholder="分钟" class="inp study-dur"><button class="btn" onclick="addStudy()">记录</button><button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button></div>`;
   const recs=dayData(todayKey(),c.id).records;const mins=recs.reduce((a,r)=>a+(parseInt(r.dur)||0),0);
-  h+=`<div class="hint mt">今日学习 <b>${mins}</b> 分钟 📚 慢就是快，持续最重要。</div>`;
+  h+=`<div class="hint mt">今日学习 <b>${mins}</b> 分钟 📚 慢就是快，持续最重要。计时完成后点「记入今日学习」可一键写入记录。</div>`;
   return h;
 }
 function addStudy(){const t=document.getElementById("stTask").value.trim();const d=document.getElementById("stDur").value;if(!t)return;dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),task:t,dur:d,type:"study"});save();renderContent();}
-function renderStudyRec(r){return `<div class="rec"><span class="rt">${r.time}</span><div class="rd">${esc(r.task)}${r.dur?" <b>"+r.dur+"分钟</b>":""}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
+function renderStudyRec(r){return `<div class="rec"><span class="rt">${r.time}</span><div class="rd">${linkify(r.task)}${r.dur?" <b>"+r.dur+"分钟</b>":""}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
 
 /* ----- Generic ----- */
 function renderGeneric(c){
-  let h=`<div class="mt row" style="align-items:center"><input id="gTitle" placeholder="标题" style="flex:1"><input id="gNote" placeholder="备注" style="flex:1.4"><button class="btn" onclick="document.getElementById('gImg').click()">📷 图</button><input id="gImg" type="file" accept="image/*" style="display:none" onchange="addGeneric(this)"><button class="btn ghost" onclick="addGenericText()">记录</button></div>`;
+  let h=`<div class="mt row record-row" style="align-items:center"><input id="gTitle" placeholder="标题" style="flex:1"><input id="gNote" placeholder="备注" style="flex:1.4"><button class="btn" onclick="document.getElementById('gImg').click()">📷 图</button><input id="gImg" type="file" accept="image/*" style="display:none" onchange="addGeneric(this)"><button class="btn ghost" onclick="addGenericText()">记录</button></div>`;
   return h;
 }
 function addGenericText(){const t=document.getElementById("gTitle").value.trim();const n=document.getElementById("gNote").value.trim();if(!t&&!n)return;dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),title:t,note:n,type:"generic"});save();renderContent();}
 function addGeneric(input){const t=document.getElementById("gTitle").value.trim()||"记录";const n=document.getElementById("gNote").value.trim();const f=input.files[0];if(!f){addGenericText();return;}compressImg(f,data=>{dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),title:t,note:n,img:data,type:"generic"});save();renderContent();});input.value="";}
-function renderGenericRec(r){return `<div class="rec"><span class="rt">${r.time}</span>${r.img?`<img src="${r.img}" alt="">`:""}<div class="rd"><b>${esc(r.title)}</b>${r.note?" "+esc(r.note):""}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
+function renderGenericRec(r){return `<div class="rec"><span class="rt">${r.time}</span>${r.img?`<img src="${r.img}" alt="">`:""}<div class="rd"><b>${linkify(r.title)}</b>${r.note?" "+linkify(r.note):""}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
 
 /* ============== Timeline ============== */
 function renderTimeline(c){
-  const dates=Object.keys(store.data).filter(d=>store.data[d][c.id]).sort().reverse().slice(0,30);
+  // 只显示「当天确实有记录」的日期：items 与 records 都为空则跳过
+  const dates=Object.keys(store.data).filter(d=>{
+    const dd=store.data[d][c.id];if(!dd)return false;
+    return (dd.records&&dd.records.length>0)||(dd.items&&dd.items.length>0);
+  }).sort().reverse().slice(0,30);
   if(!dates.length)return `<div class="card"><div class="small muted">时间轴：还没有记录。从上方表单开始今天的第一笔吧 🌱</div></div>`;
-  let html=`<div class="card"><div class="small muted mb">📜 时间轴（点击日期展开/收起，历史永久保留）</div>`;
+  let html=`<div class="card"><div class="small muted mb">📜 时间轴（点击日期展开/收起，历史永久保留；任务可随时勾选/修改/删除/添加）</div>`;
   let lastWeek=null;
   dates.forEach(d=>{
     const w=weekOf(d);
@@ -1436,18 +2007,27 @@ function renderNode(c,d){
   const expanded=(d===todayKey());
   const dd=store.data[d][c.id];
   const sum=summarize(c,d,dd);
-  const recs=dd.records||(dd.items?dd.items:[]);
-  let body="";
-  if(expanded){
-    if(c.type==="tasks"){body=`<div class="tl-body">${recs.map(it=>`<div class="rec"><span class="rt" style="color:var(--accent)">${it.done?"✓":"○"}</span><div class="rd ${it.done?"":""}">${esc(it.text)}</div></div>`).join("")}</div>`;}
-    else{body=`<div class="tl-body">${recs.map(r=>renderRecByType(c,r)).join("")||'<div class="small muted">今日暂无记录</div>'}</div>`;}
+  const hasRecs=(dd.records&&dd.records.length)||(dd.items&&dd.items.length);
+  const delBtn=hasRecs?`<button class="tl-del" title="一键清空当天全部记录" onclick="event.stopPropagation();clearDayRecs('${c.id}','${d}')">🗑 清空</button>`:'';
+  let body;
+  if(c.type==="tasks"){
+    body=taskBodyHtml(c,d,expanded);
   }else{
-    if(c.type==="tasks")body=`<div class="tl-body" style="display:none">${recs.map(it=>`<div class="rec"><span class="rt" style="color:var(--accent)">${it.done?"✓":"○"}</span><div class="rd">${esc(it.text)}</div></div>`).join("")}</div>`;
-    else body=`<div class="tl-body" style="display:none">${recs.map(r=>renderRecByType(c,r)).join("")}</div>`;
+    const recs=dd.records||[];
+    const inner=recs.map(r=>renderRecByType(c,r)).join("")||'<div class="small muted">这天暂无记录</div>';
+    body=`<div class="tl-body"${expanded?"":' style="display:none"'}>${inner}</div>`;
   }
   return `<div class="tl-node ${expanded?"today":""}"><div class="tl-dot"></div>
-    <div class="tl-date" onclick="toggleNode(this)">📅 ${d} <span class="sum">${sum}</span> <span class="muted">${expanded?"▲":"▼"}</span></div>
+    <div class="tl-date" onclick="toggleNode(this)">📅 ${d} <span class="sum">${sum}</span> <span class="muted">${expanded?"▲":"▼"}</span>${delBtn}</div>
     ${body}</div>`;
+}
+/* 时间轴里「任务」类型的完整展示 + 就地编辑（任意日期均可勾选/修改/删除/添加） */
+function taskBodyHtml(c,d,expanded){
+  const items=taskStore(c.id,d,false)||[];
+  const rows=items.length?items.map(it=>`<div class="rec task-rec ${it.done?"done":""}"><span class="rt" style="color:${it.done?'var(--accent)':'#c2c8c2'}">${it.done?"✓":"○"}</span><div class="rd ${it.done?'done':''}" onclick="toggleTaskAt('${c.id}','${d}','${it.id}')" style="cursor:pointer;flex:1">${esc(it.text)}</div><button class="x" title="修改" onclick="editTaskAt('${c.id}','${d}','${it.id}')">✎</button><button class="x" title="删除" onclick="delTaskAt('${c.id}','${d}','${it.id}')">✕</button></div>`).join("")
+    :'<div class="small muted">这天暂无任务</div>';
+  const addRow=`<div class="row mt" style="align-items:center"><input id="taskAdd_${d}" class="inp" placeholder="给这天添加任务…" style="flex:1"><button class="btn sm" onclick="addTaskDate('${c.id}','${d}')">＋ 添加</button></div>`;
+  return `<div class="tl-body"${expanded?"":' style="display:none"'}>${rows}${addRow}</div>`;
 }
 function toggleNode(el){const b=el.parentElement.querySelector(".tl-body");if(b)b.style.display=b.style.display==="none"?"block":"none";const arr=el.querySelector("span:last-child");if(arr)arr.textContent=arr.textContent==="▼"?"▲":"▼";}
 function renderRecByType(c,r){
@@ -1483,6 +2063,36 @@ function delRec(id){
   if(dd.items)dd.items=dd.items.filter(r=>r.id!==id);
   save();renderContent();
 }
+/* 时间轴一键清空当天所有记录（含任务勾选项），二次确认后删除 —— 弹自定义弹窗，不用浏览器丑 confirm */
+function clearDayRecs(cId,d){
+  const c=catById(cId);if(!c)return;
+  const dd=store.data[d]&&store.data[d][cId];if(!dd)return;
+  const rN=(dd.records||[]).length,iN=(dd.items||[]).length;
+  if(rN===0&&iN===0){toast("这天没有记录");return;}
+  const cName=c.name||"此分类";
+  const body=document.getElementById("clearDayModalBody");
+  body.innerHTML=`
+    <h3 style="margin:0 0 8px;color:#b85959;font-size:17px;display:flex;align-items:center;gap:6px;">🗑 清空当天记录？</h3>
+    <div class="small muted" style="line-height:1.6;margin-bottom:14px;">
+      即将删除 <b style="color:var(--accent)">${d}</b>「<b>${esc(cName)}</b>」下的全部内容：
+    </div>
+    <div style="background:rgba(228,109,109,.08);border:1px dashed #d76e6e;border-radius:10px;padding:12px 14px;line-height:1.7;color:#7a3a3a;font-size:13.5px;margin-bottom:18px;">
+      • 记录 <b>${rN}</b> 条<br>• 任务 <b>${iN}</b> 项<br>
+      <span style="font-size:12px;color:#9c5a5a;">⚠ 此操作不可撤销，建议先确认无误</span>
+    </div>
+    <div class="row" style="justify-content:flex-end;gap:10px;">
+      <button class="btn ghost" onclick="closeModal('clearDayModal')">✕ 取消</button>
+      <button class="btn" style="background:#d76e6e;border-color:#d76e6e;color:#fff;font-weight:600;" onclick="doClearDay('${cId}','${d}')">🗑 确认清空</button>
+    </div>`;
+  openModal("clearDayModal");
+}
+function doClearDay(cId,d){
+  const dd=store.data[d]&&store.data[d][cId];
+  if(dd){dd.records=[];dd.items=[];save();}
+  closeModal("clearDayModal");
+  renderContent();
+  toast("✅ 已清空 "+d+" 的全部记录");
+}
 
 /* ============== Preset editor ============== */
 function editPresets(id){
@@ -1498,7 +2108,19 @@ function editPresets(id){
 }
 function renderPresetList(id){const c=catById(id);const el=document.getElementById("presetList");if(!el)return;
   el.innerHTML=c.presets.map((p,i)=>`<div class="cat-manage"><span class="ic">•</span><span class="nm">${esc(p)}</span><button class="btn danger sm" onclick="delPreset('${id}',${i})">删除</button></div>`).join("")||'<div class="small muted">暂无预设</div>';}
-function addPreset(id){const v=document.getElementById("pNew").value.trim();if(!v)return;catById(id).presets.push(v);save();document.getElementById("pNew").value="";renderPresetList(id);if(current===id)renderContent();}
+function addPreset(id){
+  const raw=document.getElementById("pNew").value||"";
+  /* 内容清洗：去换行 / 去首尾空白 / 单条预设最长 24 字（按钮显示更整齐，避免一长串把整行撑破） */
+  const v=raw.replace(/[\r\n]+/g," ").trim().slice(0,24);
+  if(!v){return;}
+  const c=catById(id);
+  if(c.presets.includes(v)){alert("已存在同名预设：「"+v+"」");return;}
+  c.presets.push(v);
+  save();
+  document.getElementById("pNew").value="";
+  renderPresetList(id);
+  if(current===id)renderContent();
+}
 function delPreset(id,i){const c=catById(id);c.presets.splice(i,1);save();renderPresetList(id);if(current===id)renderContent();}
 
 /* ============== Mode ============== */
@@ -2062,7 +2684,49 @@ function updateCurrentScheme(){
 }
 
 /* ============== Utils ============== */
-function esc(s){return (s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
+function esc(s){return (s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+/* attrJs 把字符串序列化为安全的 JS 字面量（用于 onclick 等属性参数）— 防止内容里含 ' " \ 造成属性被截断 / 重复触发 */
+function attrJs(s){return JSON.stringify(String(s==null?"":s));}
+/* 轻量 toast：底部浮一条提示，2 秒淡出 */
+function toast(msg){
+  try{
+    let el=document.getElementById("__toast");
+    if(!el){el=document.createElement("div");el.id="__toast";el.style.cssText="position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:rgba(35,45,35,.92);color:#fff;font-size:13px;padding:10px 18px;border-radius:99px;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none;max-width:80vw;text-align:center;";document.body.appendChild(el);}
+    el.textContent=msg;el.style.opacity="1";
+    clearTimeout(window._toastT);
+    window._toastT=setTimeout(()=>{el.style.opacity="0";},1800);
+  }catch(e){console.log("[toast]",msg);}
+}
+/* 识别常见 App / 视频平台链接，渲染成可点击跳转的外链 */
+function appInfo(url){
+  const u=url.toLowerCase();
+  if(u.includes("bilibili.com")||u.includes("b23.tv"))return {icon:"▶ ",label:"哔哩哔哩"};
+  if(u.includes("douyin.com")||u.includes("iesdouyin"))return {icon:"♪ ",label:"抖音"};
+  if(u.includes("kuaishou.com"))return {icon:"",label:"快手"};
+  if(u.includes("youtube.com")||u.includes("youtu.be"))return {icon:"▶ ",label:"YouTube"};
+  if(u.includes("weibo.com"))return {icon:"",label:"微博"};
+  if(u.includes("xiaohongshu.com")||u.includes("xhslink.com"))return {icon:"📕 ",label:"小红书"};
+  if(u.includes("zhihu.com"))return {icon:"",label:"知乎"};
+  if(u.includes("taobao.com")||u.includes("tmall.com"))return {icon:"🛒 ",label:"淘宝"};
+  if(u.includes("jd.com"))return {icon:"🛒 ",label:"京东"};
+  if(u.includes("music.163.com")||u.includes("netease"))return {icon:"♪ ",label:"网易云音乐"};
+  if(u.includes("spotify.com"))return {icon:"♪ ",label:"Spotify"};
+  if(u.includes("github.com"))return {icon:"",label:"GitHub"};
+  if(u.includes("youku.com"))return {icon:"▶ ",label:"优酷"};
+  if(u.includes("iqiyi.com"))return {icon:"▶ ",label:"爱奇艺"};
+  if(u.includes("v.qq.com")||u.includes("qq.com"))return {icon:"▶ ",label:"腾讯视频"};
+  return {icon:"🔗 ",label:"打开链接"};
+}
+function linkify(text){
+  if(!text)return "";
+  let s=esc(text);
+  // 匹配 http/https 链接（遇到空格或常见中文/英文句末标点即止）
+  s=s.replace(/(https?:\/\/[^\s<>"'）】）)]+)/g,function(m){
+    const info=appInfo(m);
+    return `<a href="${esc(m)}" target="_blank" rel="noopener noreferrer" class="ext-link">${info.icon}${info.label}</a>`;
+  });
+  return s;
+}
 function compressImg(file,cb,maxDim){
   maxDim=maxDim||1080; // 提高上限，手机高清屏更清晰（仍远低于本地存储上限）
   // 读取 JPEG EXIF Orientation，避免手机竖拍照片被画布旋转成横/倒
