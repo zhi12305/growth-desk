@@ -243,6 +243,10 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 
 .timer-save:hover{background:#246b41;border-color:#246b41;}
 /* 运动健身原始记录输入行：在窄屏允许换行 */
 .ex-row{flex-wrap:wrap;row-gap:8px;}
+/* 力量训练明细：桌面端动作占宽、数字框窄 */
+.ex-detail-row input#exMove{flex:1.4;min-width:150px;}
+.ex-detail-row #exSets,.ex-detail-row #exReps{width:62px;min-width:62px;text-align:center;}
+.ex-detail-row #exWeight{width:96px;min-width:96px;}
 
 /* ---------- 日历（主页） ---------- */
 .cal-head{font-size:11px;color:var(--muted);text-align:center;padding:4px 0;font-weight:600;}
@@ -584,7 +588,7 @@ body.gradient{background:linear-gradient(135deg,
   .btn.sm{min-height:36px;}
   .chip{min-height:36px;padding:7px 11px;font-size:12px;}
   /* 关键 input 字号提升到 ≥16px 防止 iOS Safari 自动放大导致整页缩放 */
-  .inp,.cw-num-input,.timer-target input,input#exName,input#exDur,input#exBody,input#dText,input#rBook,input#rPages,input#gTitle,input#gNote{font-size:16px;}
+  .inp,.cw-num-input,.timer-target input,input#exName,input#exDur,input#exBody,input#dText,input#rBook,input#rPages,input#gTitle,input#gNote,input#exMove,input#exSets,input#exReps,input#exWeight{font-size:16px;}
   /* 运动健身输入行：窄屏允许换行、按钮可换行 */
   .ex-row .btn,.ex-row .btn.sm{flex:1 0 auto;}
   input#exDur{min-width:88px;width:88px;}
@@ -601,6 +605,11 @@ body.gradient{background:linear-gradient(135deg,
   .water-row .btn.soft.sm,.study-row .btn.soft.sm{width:100%;}
   /* 预设按钮：手机端最大宽度更小一点，避免占用整行 */
   .preset-btn{max-width:140px;font-size:12.5px;padding:7px 12px;min-height:40px;}
+  /* 力量训练明细行：窄屏整行堆叠，数字输入框整行宽 */
+  .ex-detail-row{flex-wrap:wrap;row-gap:8px;}
+  .ex-detail-row input#exMove{flex:1 0 100%;min-width:140px;}
+  .ex-detail-row #exSets,.ex-detail-row #exReps,.ex-detail-row #exWeight{width:100%;flex:1 1 calc(33% - 8px);min-width:88px;}
+  .ex-detail-row .btn{flex:1 0 100%;width:100%;}
   /* 记录卡 / 时间轴里的 .rec 在窄屏：文字小一档、垂直堆叠、链接换行 */
   .rec{flex-wrap:wrap;row-gap:2px;}
   .rec .rd{font-size:13px;line-height:1.5;word-break:break-word;}
@@ -872,6 +881,60 @@ body.gradient{background:linear-gradient(135deg,
 <div class="modal" id="imgModal"><div class="modal-box"><div id="imgModalBody"></div></div></div>
 <div class="modal" id="noteModal"><div class="modal-box"><div id="noteModalBody"></div></div></div>
 <div class="modal" id="clearDayModal"><div class="modal-box"><div id="clearDayModalBody"></div></div></div>
+
+<!-- 健身预设确认对话框：点击预设 → 弹窗 → 填时长/组数 → 确认后记录 -->
+<div class="modal" id="exPresetModal">
+  <div class="modal-box" style="max-width:480px">
+    <button class="modal-ctrl modal-close" onclick="closeExPreset()" title="关闭">✕</button>
+    <div class="modal-h" style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:20px">🏃</span>
+      <div>
+        <div class="small muted">记录一下这次运动</div>
+        <div style="font-weight:600;font-size:16px"><span id="exPMName">运动</span></div>
+      </div>
+    </div>
+    <div class="small muted" style="margin-top:8px">先选一种记录方式，再填具体数值。</div>
+    <!-- 模式切换：时长 / 组数 -->
+    <div class="row mt" style="gap:6px;flex-wrap:wrap">
+      <button type="button" class="btn sm" id="exPModeDur" onclick="setExPresetMode('dur')">⏱ 时长</button>
+      <button type="button" class="btn ghost sm" id="exPModeSets" onclick="setExPresetMode('sets')">🔢 组数</button>
+    </div>
+    <!-- 时长模式 -->
+    <div id="exPPanelDur" class="mt">
+      <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center">
+        <input id="exPDur" type="number" inputmode="decimal" min="0" class="inp" placeholder="时长数值" style="flex:1;min-width:120px">
+        <select id="exPUnit" class="inp" style="min-width:96px">
+          <option value="秒">秒</option>
+          <option value="分钟" selected>分钟</option>
+          <option value="小时">小时</option>
+          <option value="组">组</option>
+          <option value="个">个</option>
+        </select>
+      </div>
+      <div class="small muted mt" style="margin-top:6px">例：跑步 30 分钟 / 平板支撑 90 秒 / 跳绳 200 个</div>
+    </div>
+    <!-- 组数模式 -->
+    <div id="exPPanelSets" class="mt" style="display:none">
+      <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center">
+        <input id="exPSets" type="number" inputmode="numeric" min="0" class="inp" placeholder="组数" style="flex:1;min-width:80px">
+        <input id="exPReps" type="number" inputmode="numeric" min="0" class="inp" placeholder="每组次数（选填）" style="flex:1;min-width:130px">
+        <input id="exPWeight" type="number" inputmode="decimal" min="0" class="inp" placeholder="重量kg·选填" style="width:120px">
+      </div>
+      <div class="small muted mt" style="margin-top:6px">例：力量训练 4 组 × 12 次 · 10kg</div>
+    </div>
+    <!-- 通用：身体状态 / 备注 -->
+    <div class="row mt" style="gap:6px;flex-wrap:wrap;align-items:center">
+      <input id="exPBody" class="inp" placeholder="身体状态：轻松 / 酸痛 / 疲惫…（选填）" style="flex:1;min-width:160px">
+    </div>
+    <div class="row mt" style="gap:6px;flex-wrap:wrap;align-items:center">
+      <input id="exPNote" class="inp" placeholder="备注（选填）" style="flex:1;min-width:160px">
+    </div>
+    <div class="row mt" style="justify-content:flex-end;gap:8px">
+      <button class="btn soft" onclick="closeExPreset()">取消</button>
+      <button class="btn" id="exPConfirmBtn" onclick="confirmExPreset()">✓ 确认记录</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ============== Data layer ============== */
@@ -1211,6 +1274,7 @@ function go(id){
 }
 
 /* ============== Content router ============== */
+function bindCat(c){ /* 各分类可在 renderContent 后扩展事件绑定 */ }
 function renderContent(){
   const el=document.getElementById("content");
   if(current==="home"){el.innerHTML=renderHome();return;}
@@ -1218,8 +1282,11 @@ function renderContent(){
   const c=catById(current);if(!c){el.innerHTML="";return;}
   el.innerHTML=renderCatView(c);
   bindCat(c);
+  if(c.type==="tasks")bindTasks();
+  if(c.type==="exercise")bindExercise();
+  // 阅读面板：书单推荐书页 + 我的书架等的手动添加、实时进度事件绑定
+  if(current==="reading"){setTimeout(bindBookDots,30);setTimeout(bindBookShelfEvents,0);}
   // 书单推荐书页 → 绑定滚动监听与点击 dot 跳转（每页恰好填满一个 .book-page）
-  if(current==="reading")setTimeout(bindBookDots,30);
 }
 
 /* ============== Profile (我的) ============== */
@@ -1535,19 +1602,61 @@ function renderCatView(c){
 function typeLabel(t){return {tasks:"任务清单",mood:"情绪打卡+随笔",water:"饮水记录",diet:"饮食记录",sleep:"睡眠记录",reading:"阅读进度",exercise:"运动+身体状态",study:"学习任务",generic:"自定义记录"}[t]||"记录";}
 
 /* ----- Tasks ----- */
+/* 事件委托：所有 type==="tasks" 的分类（tasks / sudoku ...）共用本组件。
+   点击交给 #tasksRoot 的 click listener，按 data-action 派发，避免内联 onclick 在
+   某些字体裁切 / 渲染环境下失效。所有任务增删改查都集中到一处。 */
 function renderTasks(c){
   const items=getTasks(todayKey(),c);
   const streak=cumStreak(c);
-  let h=`<div class="mt">`;
+  let h=`<div id="tasksRoot" data-cat="${esc(c.id)}" class="mt">`;
   items.forEach(it=>{
-    h+=`<div class="task ${it.done?"done":""}"><div class="box" onclick="toggleTaskAt('${c.id}','${todayKey()}', '${it.id}')">${it.done?"✓":""}</div><div class="tx">${esc(it.text)}</div><button class="del" title="修改" onclick="editTaskAt('${c.id}','${todayKey()}','${it.id}')">✎</button><button class="del" title="删除" onclick="delTaskAt('${c.id}','${todayKey()}','${it.id}')">✕</button></div>`;
+    h+=`<div class="task ${it.done?"done":""}" data-id="${it.id}">
+      <div class="box" data-action="toggle" title="勾选完成">${it.done?"✓":""}</div>
+      <div class="tx">${esc(it.text)}</div>
+      <button class="del" data-action="edit" title="修改">✎</button>
+      <button class="del" data-action="del" title="删除">✕</button>
+    </div>`;
   });
   h+=`</div>`;
   h+=`<div class="row mt" style="align-items:center">
-      <input id="taskInput" class="inp" placeholder="新增小任务，回车添加" onkeydown="if(event.key==='Enter')addTask()">
-      <button class="btn" onclick="addTask()">＋ 添加</button></div>`;
+      <input id="taskInput" class="inp" placeholder="新增小任务，回车添加">
+      <button class="btn" id="taskAddBtn">＋ 添加</button></div>`;
   if(store.mode==="cumulative"&&streak>0)h+=`<div class="hint">累积模式：任务不每日清空，已连续打卡 <b>${streak}</b> 天 🔥</div>`;
   return h;
+}
+/* 任务行的统一入口（每日任务 / 每日数独共用） */
+function bindTasks(){
+  const root=document.getElementById("tasksRoot");if(!root)return;
+  const inp=document.getElementById("taskInput");
+  const btn=document.getElementById("taskAddBtn");
+  if(inp&&!inp._bound){inp._bound=true;inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addTask();}});}
+  if(btn&&!btn._bound){btn._bound=true;btn.addEventListener("click",e=>{e.preventDefault();addTask();});}
+  if(!root._bound){root._bound=true;
+    root.addEventListener("click",e=>{
+      const row=e.target.closest(".task");if(!row)return;
+      const id=row.dataset.id;const catId=root.dataset.cat;
+      if(!id||!catId)return;
+      const a=e.target.dataset.action;
+      if(a==="toggle")toggleTaskAt(catId,todayKey(),id);
+      else if(a==="edit")editTaskAt(catId,todayKey(),id);
+      else if(a==="del"){
+        if(confirm("删除此小任务？"))delTaskAt(catId,todayKey(),id);
+      }
+    });
+  }
+}
+/* 健身面板：预设点击 → 弹对话框；自定义行 → 数字+单位 → addExCustom */
+function bindExercise(){
+  const pick=document.getElementById("exPick");if(pick&&!pick._bound){pick._bound=true;
+    pick.addEventListener("click",e=>{
+      const b=e.target.closest("[data-action='exPreset']");if(!b)return;
+      e.preventDefault();
+      addExFromBtn(b);
+    });
+  }
+  const btn=document.getElementById("exCustomBtn");if(btn&&!btn._bound){btn._bound=true;btn.addEventListener("click",e=>{e.preventDefault();addExCustom();});}
+  const name=document.getElementById("exName");
+  if(name&&!name._bound){name._bound=true;name.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addExCustom();}});}
 }
 function cumStreak(c){
   if(store.mode!=="cumulative")return 0;
@@ -1719,6 +1828,43 @@ function bindBookDots(){
   });
   setTimeout(update,50);
 }
+/* 我的书架 / 手动添加 / 阅读进度更新 统一事件绑定（避免内联 onclick 在某些环境下失效） */
+function bindBookShelfEvents(){
+  const root=document.getElementById("content");if(!root)return;
+  // 清空整架
+  const clr=document.getElementById("shelfClearBtn");
+  if(clr&&!clr._bound){clr._bound=true;clr.addEventListener("click",()=>{if(confirm("清空整个书架？")){store.bookShelf=[];save();renderContent();}});}
+  // 手动添加按钮
+  const add=document.getElementById("bmAddBtn");
+  if(add&&!add._bound){add._bound=true;add.addEventListener("click",addCustomBook);}
+  // 书架卡事件（移除 / 设定总页数 / 加今日页数 / 设定当前页 / 修改）
+  document.querySelectorAll("[data-action]").forEach(btn=>{
+    if(btn._bound)return;
+    const act=btn.dataset.action;const bid=btn.dataset.bid;
+    if(!act)return;
+    btn._bound=true;
+    btn.addEventListener("click",e=>{
+      e.preventDefault();
+      if(act==="shelfDel"){if(confirm("从书架移除此书？"))removeBookFromShelf(bid);}
+      else if(act==="pgAdd"){
+        const card=btn.closest(".book-card");
+        const v=parseInt(card?.querySelector("[data-role='pgNow']")?.value)||0;
+        if(!v){/* 退回到通用 +N 弹窗 */ const n=parseInt(prompt("今日读了几页？","10"))||0;if(n)addTodayBookPages(bid,n);return;}
+        addTodayBookPages(bid,v);
+      }
+      else if(act==="pgSet"){
+        const card=btn.closest(".book-card");
+        const pEl=card?.querySelector("[data-role='pgNow']");
+        const cEl=card?.querySelector("[data-role='chap']");
+        const p=parseInt(pEl?.value)||0;if(!p){toast("请先填写当前页数");return;}
+        const chap=(cEl?.value||"").trim();
+        setBookNowPage(bid,p,chap);
+      }
+      else if(act==="totSet")setBookTotalUi(bid);
+      else if(act==="shelfEdit")editShelfBook(bid);
+    });
+  });
+}
 function renderBookRec(){
   store.bookShelf=store.bookShelf||[];store.bookPref=store.bookPref||[];
   const order=genreOrder();
@@ -1756,10 +1902,28 @@ function renderBookRec(){
 }
 function renderBookShelf(){
   store.bookShelf=store.bookShelf||[];
+  // 手动添加区（始终显示）
+  let manual=`<div class="book-manual mt" style="border:1px dashed var(--bd);border-radius:10px;padding:8px 10px">
+    <div class="small muted" style="margin-bottom:6px">📝 手动添加书本（推荐书单无收录时可用）</div>
+    <div class="row" style="align-items:center;gap:6px;flex-wrap:wrap">
+      <input id="bmTitle" class="inp" placeholder="书名（如：被讨厌的勇气）" style="flex:1.4;min-width:160px">
+      <input id="bmAuthor" class="inp" placeholder="作者（选填）" style="flex:1;min-width:120px">
+      <select id="bmGenre" style="min-width:90px">
+        ${Object.keys(BOOK_DB).map(k=>`<option value="${k}">${BOOK_DB[k].label}</option>`).join("")}
+        <option value="__other__">其它</option>
+      </select>
+      <input id="bmTotal" type="number" inputmode="numeric" class="inp" placeholder="总页数（选填）" style="max-width:110px">
+      <button class="btn" id="bmAddBtn" type="button">＋ 加入书架</button>
+    </div>
+  </div>`;
+
   if(!store.bookShelf.length){
     return `<div class="card mt">
-      <div><b>📖 我的书架</b> <span class="small muted">· 0 本</span></div>
-      <div class="hint mt">从上方推荐书单点 <b>＋ 加入书架</b>，书本就会出现在这里。</div>
+      <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+        <div><b>📖 我的书架</b> <span class="small muted">· 0 本</span></div>
+      </div>
+      <div class="hint mt">从上方推荐书单点 <b>＋ 加入书架</b>，或下方面板 <b>手动添加</b>。</div>
+      ${manual}
     </div>`;
   }
   const list=store.bookShelf.slice().sort((a,b)=>(b.addedAt||0)-(a.addedAt||0)).map(b=>{
@@ -1769,46 +1933,274 @@ function renderBookShelf(){
       return sum+rs.filter(r=>r.book===b.title).reduce((s,r)=>s+(parseInt(r.pages)||0),0);
     },0))||0);
     const pg=total?Math.min(100,Math.round(pages/total*100)):0;
-    return `<div class="book-card">
+    const remain=total?Math.max(0,total-pages):0;
+    const bid=b.id;
+    return `<div class="book-card" data-bid="${bid}">
       <div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px">
         <div style="flex:1;min-width:0">
           <div class="book-title">《${esc(b.title)}》</div>
-          <div class="book-meta">作者：${esc(b.author)} · <span class="badge">${esc(b.genreLabel)}</span></div>
-          ${total?`<div class="book-meta mt">已读 ${pages} / ${total} 页 · ${pg}%</div>`:`<div class="book-meta mt">📌 尚未开始阅读</div>`}
+          <div class="book-meta">作者：${esc(b.author||"—")} · <span class="badge">${esc(b.genreLabel||"—")}</span></div>
+          ${total?`<div class="book-meta mt">📖 已读 <b>${pages}</b> / ${total} 页 · ${pg}%${remain?` · 剩余 <b>${remain}</b> 页`:""}</div>`:`<div class="book-meta mt">📌 尚未设定总页数（点击下方「设总页数」）</div>`}
+          <div class="book-intro">${esc(b.intro||"")}</div>
         </div>
-        <button class="btn danger sm" onclick="removeBookFromShelf('${b.id}')" title="从书架移除">✕</button>
+        <button class="btn danger sm" data-action="shelfDel" data-bid="${bid}" title="从书架移除">✕</button>
       </div>
-      <div class="book-intro">${esc(b.intro)}</div>
+      <!-- 实时更新进度 + 设定总页数 -->
+      <div class="row mt" style="gap:6px;flex-wrap:wrap;align-items:center">
+        <input type="number" inputmode="numeric" min="0" class="inp" data-role="pgNow" data-bid="${bid}" placeholder="读到第几页" style="width:120px">
+        <input type="number" inputmode="numeric" min="0" class="inp" data-role="chap" data-bid="${bid}" placeholder="第几章（选填）" style="width:130px">
+        <button class="btn sm" data-action="pgSet" data-bid="${bid}" title="直接设定当前页数（不会累加，仅替换）">设定当前页</button>
+        <button class="btn soft sm" data-action="pgAdd" data-bid="${bid}" title="累计页数（累加到今日阅读）">＋今日读几页</button>
+        <button class="btn ghost sm" data-action="totSet" data-bid="${bid}" title="设置书的总页数">设总页数</button>
+        ${b.custom?`<button class="btn ghost sm" data-action="shelfEdit" data-bid="${bid}" title="修改书名/作者/简介">✎ 修改</button>`:""}
+      </div>
     </div>`;
   }).join("");
   return `<div class="card mt">
     <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
       <div><b>📖 我的书架</b> <span class="small muted">· 共 ${store.bookShelf.length} 本</span></div>
-      <button class="btn ghost sm" onclick="if(confirm('清空整个书架？')){store.bookShelf=[];save();renderContent();}">清空书架</button>
+      <button class="btn ghost sm" id="shelfClearBtn">清空书架</button>
     </div>
     <div class="mt">${list}</div>
+    ${manual}
   </div>`;
+}
+/* 手动添加一本书到书架（用户自填书名/作者/题材/总页数） */
+function addCustomBook(){
+  const title=(document.getElementById("bmTitle")?.value||"").trim();
+  if(!title){toast("请先填写书名");return;}
+  const author=(document.getElementById("bmAuthor")?.value||"").trim();
+  const genre=document.getElementById("bmGenre")?.value||"__other__";
+  const total=parseInt(document.getElementById("bmTotal")?.value)||0;
+  const id="bk_user_"+uid();
+  const g=BOOK_DB[genre];
+  store.bookShelf=store.bookShelf||[];
+  store.bookShelf.push({
+    id,title,author:author||"—",
+    genre:genreLabel=genre==="__other__"?"其它":(g?g.label:"其它"),
+    genreLabel:genre==="__other__"?"其它":(g?g.label:"其它"),
+    intro:"用户手动添加",
+    addedAt:Date.now(),custom:true
+  });
+  if(total>0){store.bookTotal=store.bookTotal||{};store.bookTotal[title]=total;}
+  save();renderContent();toast("✓ 《"+title+"》 已加入书架");
+}
+/* 实时更新当前页 / 章节（直接设定，不累加） */
+function setBookNowPage(bookId,page,chap){
+  const shelf=(store.bookShelf||[]).find(b=>b.id===bookId);if(!shelf)return;
+  const title=shelf.title;
+  const total=(store.bookTotal&&store.bookTotal[title])||0;
+  if(total&&page>total){if(!confirm("已超过总页数（"+total+"页），仍要设定到 "+page+" 吗？"))return;}
+  // 用一条类型为 reading_pg 的特殊记录保存当前页/章节（不混入每日阅读的正/页字段，便于区分）
+  dayData(todayKey(),catById("reading").id).records.push({
+    id:uid(),time:nowHM(),book:title,pages:0,type:"阅读更新",
+    pageNow:page,chap:chap||"",kind:"reading_progress",curOnly:true
+  });
+  save();renderContent();toast("✓ 已把《"+title+"》读到 第 "+page+" 页"+(chap?" / "+chap+" 章":""));
+}
+/* 累加今日读了几页（沿用 addReading 的正轨字段） */
+function addTodayBookPages(bookId,pages){
+  if(!pages||pages<=0){toast("请先填写页数");return;}
+  const shelf=(store.bookShelf||[]).find(b=>b.id===bookId);if(!shelf)return;
+  const total=(store.bookTotal&&store.bookTotal[shelf.title])||0;
+  if(total&&confirm("已设置总页数 "+total+"，是否继续累加？")){/* go on */}
+  dayData(todayKey(),catById("reading").id).records.push({
+    id:uid(),time:nowHM(),book:shelf.title,pages:parseInt(pages),type:"实体书",kind:"reading"
+  });
+  save();renderContent();toast("✓ 《"+shelf.title+"》 +"+pages+" 页");
+}
+function setBookTotalUi(bookId){
+  const shelf=(store.bookShelf||[]).find(b=>b.id===bookId);if(!shelf)return;
+  const cur=(store.bookTotal&&store.bookTotal[shelf.title])||0;
+  const v=prompt("《"+shelf.title+"》 总页数：",cur||"");if(!v||isNaN(parseInt(v)))return;
+  store.bookTotal=store.bookTotal||{};store.bookTotal[shelf.title]=parseInt(v);
+  save();renderContent();toast("✓ 已设置总页数");
+}
+function editShelfBook(bookId){
+  const shelf=(store.bookShelf||[]).find(b=>b.id===bookId);if(!shelf)return;
+  const nt=prompt("书名：",shelf.title);if(nt===null)return;
+  const t=nt.trim();if(!t)return;
+  // 若书名变更，将原 bookTotal 键名同步迁移
+  if(t!==shelf.title&&store.bookTotal){
+    const cur=store.bookTotal[shelf.title];
+    if(cur!==undefined){delete store.bookTotal[shelf.title];store.bookTotal[t]=cur;}
+  }
+  shelf.title=t;
+  shelf.author=prompt("作者：",shelf.author)||shelf.author;
+  shelf.intro=prompt("简介（选填）：",shelf.intro||"")||shelf.intro;
+  save();renderContent();toast("✓ 已修改");
 }
 
 /* ----- Exercise ----- */
 function renderExercise(c){
   const recs=dayData(todayKey(),c.id).records;
   const days=Object.keys(store.data).filter(d=>(store.data[d].exercise&&store.data[d].exercise.records.length)).length;
-  let h=`<div class="mt small muted">今天练了什么？（预设可管理）</div><div class="moods mt" id="exPick">`;
-  c.presets.forEach(p=>{h+=`<div class="mood preset-btn" data-p="${esc(p)}" onclick="addExFromBtn(this)" title="${esc(p)}">${p}</div>`;});
-  h+=`</div>`;
+  // 顶部预设：改为事件委托（data-action / data-p），避免内联 onclick 在某些环境下失效
+  let h=`<div class="mt small muted">今天练了什么？点预设开始记录 ↓</div>
+    <div class="moods mt" id="exPick">
+      ${c.presets.map(p=>`<div class="mood preset-btn" data-action="exPreset" data-p="${esc(p)}" title="点我记录：${esc(p)}">${p}</div>`).join("")}
+    </div>`;
   // ===== 计时器（正计时 / 倒计时）=====
   h+=renderTimerCard(c);
-  // 原有「自定义记录」输入行——窄屏 wrap 后不挤
-  h+=`<div class="row mt ex-row" style="align-items:center"><input id="exName" placeholder="运动项目（自定义）" style="flex:1;min-width:140px"><input id="exDur" type="number" inputmode="numeric" placeholder="分钟" style="width:88px"><input id="exBody" placeholder="身体状态：轻松/酸痛/疲惫…" style="flex:1;min-width:140px"><button class="btn" onclick="addExCustom()">记录</button><button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button></div>`;
+  // ===== 力量训练明细：部位 → 动作 → 组数 × 次数（重量可选） =====
+  const parts=["肩","胸","背","腿","手臂","核心","有氧","其它"];
+  h+=`<div class="card mt">
+    <div class="small muted mb">💪 力量训练明细（先选部位，再填动作与组次）</div>
+    <div class="moods mt" id="exPartPick" style="margin-top:0">
+      ${parts.map(p=>`<div class="mood preset-btn" data-part="${p}" onclick="pickExPart(this)" title="${p}">${p}</div>`).join("")}
+    </div>
+    <div class="row mt ex-detail-row" style="align-items:center">
+      <input id="exMove" placeholder="动作，如：哑铃推举 / 引体向上" style="flex:1.4">
+      <input id="exSets" type="number" inputmode="numeric" placeholder="组数" aria-label="组数">
+      <input id="exReps" type="number" inputmode="numeric" placeholder="每组次数" aria-label="每组次数">
+      <input id="exWeight" type="number" inputmode="decimal" placeholder="重量kg·选填" aria-label="重量">
+      <button class="btn" onclick="addExDetail()">记录</button>
+    </div>
+    <div class="small muted mt" style="margin-top:6px">例：选「肩」→ 动作「哑铃推举」→ 4 组 × 12 次 · 10kg。留空部位也可直接记动作。</div>
+  </div>`;
+  // 「自定义记录」输入行：时长字段增加多单位（秒/分钟/小时/组/个）
+  h+=`<div class="row mt ex-row" style="align-items:center">
+    <input id="exName" placeholder="运动项目（自定义·快速打卡）" style="flex:1;min-width:140px">
+    <input id="exDur" type="number" inputmode="decimal" placeholder="数值" style="width:88px">
+    <select id="exUnit" class="inp" style="width:88px" title="时长单位">
+      <option value="分钟" selected>分钟</option>
+      <option value="秒">秒</option>
+      <option value="小时">小时</option>
+      <option value="组">组</option>
+      <option value="个">个</option>
+    </select>
+    <input id="exBody" placeholder="身体状态：轻松/酸痛/疲惫…" style="flex:1;min-width:140px">
+    <button class="btn" id="exCustomBtn">记录</button>
+    <button class="btn soft sm" onclick="editPresets('${c.id}')">管理预设</button>
+  </div>`;
   h+=`<div class="hint mt">已打卡 <b>${days}</b> 天运动 🔥 身体状态帮你看见自己的恢复曲线。计时完成后点「记入今日运动」可一键写入记录。</div>`;
   return h;
 }
+/* 力量明细：单选部位 */
+function pickExPart(btn){
+  document.querySelectorAll("#exPartPick .mood").forEach(x=>x.classList.remove("on"));
+  btn.classList.add("on");
+  window._exPart=btn.dataset.part;
+}
+/* 力量明细：提交一条「部位 + 动作 + 组数×次数（+重量）」记录 */
+function addExDetail(){
+  const part=window._exPart||"";
+  const move=(document.getElementById("exMove").value||"").trim();
+  const sets=parseInt(document.getElementById("exSets").value)||0;
+  const reps=parseInt(document.getElementById("exReps").value)||0;
+  const weight=(document.getElementById("exWeight").value||"").trim();
+  if(!move){alert("请先填写动作名称");return;}
+  if(!sets||!reps){alert("请填写组数和每组次数");return;}
+  dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),type:"exercise",detail:true,part:part,move:move,sets:sets,reps:reps,weight:weight});
+  window._exPart="";
+  save();renderContent();
+}
+/* 健身预设点击 → 弹出对话框，让用户填时长 / 组数 + 状态 + 备注，确认后才记录 */
+function openExPreset(name){
+  window._exPending={name:(name||"").trim()};
+  document.getElementById("exPMName").textContent=name||"运动";
+  // 重置输入
+  const dEl=document.getElementById("exPDur");if(dEl)dEl.value="";
+  const uEl=document.getElementById("exPUnit");if(uEl)uEl.value="分钟";
+  const sEl=document.getElementById("exPSets");if(sEl)sEl.value="";
+  const rEl=document.getElementById("exPReps");if(rEl)rEl.value="";
+  const wEl=document.getElementById("exPWeight");if(wEl)wEl.value="";
+  const bEl=document.getElementById("exPBody");if(bEl)bEl.value="";
+  const nEl=document.getElementById("exPNote");if(nEl)nEl.value="";
+  setExPresetMode("dur");
+  openModal("exPresetModal");
+  setTimeout(()=>{try{document.getElementById("exPDur").focus();}catch(e){}},50);
+}
+function closeExPreset(){closeModal("exPresetModal");window._exPending=null;}
+function setExPresetMode(m){
+  const dur=document.getElementById("exPPanelDur");
+  const sets=document.getElementById("exPPanelSets");
+  const bDur=document.getElementById("exPModeDur");
+  const bSets=document.getElementById("exPModeSets");
+  if(m==="sets"){
+    dur.style.display="none";sets.style.display="";
+    bDur.classList.add("ghost");bDur.classList.remove("on");
+    bSets.classList.remove("ghost");bSets.classList.add("on");
+  }else{
+    dur.style.display="";sets.style.display="none";
+    bDur.classList.remove("ghost");bDur.classList.add("on");
+    bSets.classList.add("ghost");bSets.classList.remove("on");
+  }
+}
+/* 确认记录：根据当前模式写入对应记录字段 */
+function confirmExPreset(){
+  const p=window._exPending;if(!p)return;
+  const name=p.name;
+  const body=(document.getElementById("exPBody")?.value||"").trim();
+  const note=(document.getElementById("exPNote")?.value||"").trim();
+  const modeIsSets=(document.getElementById("exPPanelSets").style.display!=="none");
+  const rec={id:uid(),time:nowHM(),name,type:"exercise",body,note};
+  if(modeIsSets){
+    const sets=parseInt(document.getElementById("exPSets").value)||0;
+    const reps=parseInt(document.getElementById("exPReps").value)||0;
+    const weight=(document.getElementById("exPWeight").value||"").trim();
+    if(!sets&&!reps){
+      // 至少需要一个，否则切换到时长模式
+      setExPresetMode("dur");
+      toast("请填写组数或次数");
+      return;
+    }
+    rec.detail=true;rec.sets=sets;rec.reps=reps;rec.weight=weight;
+    rec.move=name;rec.part="";
+  }else{
+    const dur=parseFloat(document.getElementById("exPDur").value)||0;
+    const unit=document.getElementById("exPUnit").value||"分钟";
+    if(!dur){toast("请填写时长数值");return;}
+    rec.dur=dur;rec.unit=unit;
+    // 时长 → 顺手归一为秒（用于排序/统计），但保留原 unit 用于显示
+    const unitSec={"秒":1,"分钟":60,"小时":3600,"组":1,"个":1};
+    rec.durSec=(rec.dur||0)*(unitSec[unit]||0);
+  }
+  dayData(todayKey(),catById(current).id).records.push(rec);
+  save();closeExPreset();renderContent();
+  toast("✓ "+name+" 已记录");
+}
 function addEx(p){dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),name:p,type:"exercise"});save();renderContent();}
-/* 从预设按钮触发：读 data-p 防止属性注入 / 多次解析；1 秒内重复触发自动忽略（防止误触/手抖造成多条重复） */
-function addExFromBtn(btn){if(btn._locked)return;btn._locked=true;setTimeout(()=>{btn._locked=false;},1000);addEx(btn.dataset.p||"");}
-function addExCustom(){const n=document.getElementById("exName").value.trim();const d=document.getElementById("exDur").value;const b=document.getElementById("exBody").value.trim();if(!n)return;dayData(todayKey(),catById(current).id).records.push({id:uid(),time:nowHM(),name:n,dur:d,body:b,type:"exercise"});save();renderContent();}
-function renderExerciseRec(r){let extra="";if(r.dur)extra+=" "+r.dur+"分钟";if(r.body)extra+=' <span class="badge">'+linkify(r.body)+"</span>";return `<div class="rec"><span class="rt">${r.time}</span><div class="rd"><b>${linkify(r.name)}</b>${extra}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;}
+/* 从预设按钮触发：弹对话框让用户填时长/组数 → 确认后才记录 */
+function addExFromBtn(btn){
+  if(btn._locked)return;btn._locked=true;setTimeout(()=>{btn._locked=false;},800);
+  openExPreset(btn.dataset.p||"");
+}
+/* 自定义记录：项目名 + 数值 + 单位（多单位）+ 身体状态 */
+function addExCustom(){
+  const n=(document.getElementById("exName")?.value||"").trim();
+  const d=parseFloat(document.getElementById("exDur")?.value)||0;
+  const unit=(document.getElementById("exUnit")?.value)||"分钟";
+  const b=(document.getElementById("exBody")?.value||"").trim();
+  if(!n){toast("请先填写运动项目");return;}
+  const rec={id:uid(),time:nowHM(),name:n,type:"exercise",dur:d,unit,b:""};
+  if(b)rec.body=b;
+  const unitSec={"秒":1,"分钟":60,"小时":3600,"组":1,"个":1};
+  rec.durSec=d*(unitSec[unit]||0);
+  dayData(todayKey(),catById(current).id).records.push(rec);
+  document.getElementById("exName").value="";
+  document.getElementById("exDur").value="";
+  save();renderContent();
+}
+function renderExerciseRec(r){
+  if(r.detail){
+    let s="";
+    if(r.part)s+='<span class="badge amber">'+esc(r.part)+"</span> ";
+    s+="<b>"+esc(r.move||r.name||"")+"</b>";
+    if(r.sets||r.reps)s+=" "+((r.sets||"?")+"组 × "+(r.reps||"?")+"次");
+    if(r.weight)s+=" · "+esc(r.weight)+"kg";
+    if(r.body)s+=' <span class="badge">'+linkify(r.body)+"</span>";
+    return `<div class="rec"><span class="rt">${r.time}</span><div class="rd">${s}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;
+  }
+  let extra="";
+  // 时长 / 单位
+  if(r.dur){
+    const u=r.unit||"分钟";
+    extra+=" <b>"+r.dur+" "+esc(u)+"</b>";
+  }
+  if(r.body)extra+=' <span class="badge">'+linkify(r.body)+"</span>";
+  return `<div class="rec"><span class="rt">${r.time}</span><div class="rd"><b>${linkify(r.name)}</b>${extra}</div><button class="x" onclick="delRec('${r.id}')">✕</button></div>`;
+}
 
 /* ----- Timer（按分类隔离；运动 / 学习共用）-----
    状态保存在 window._timers[catId]，每个分类独立计时；
